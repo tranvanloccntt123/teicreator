@@ -48,6 +48,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
               <Stack.Screen name="upload-image" options={{title: "Upload Image"}} />
+              <Stack.Screen name="create-workspace" options={{title: "Create Workspace"}} />
             </Stack>
           </ThemeProvider>
         </View>

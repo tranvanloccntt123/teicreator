@@ -20,3 +20,11 @@ export type EditImageState = {
   rotate: SharedValue<number>;
   blur: SharedValue<number>;
 };
+
+export type Workspace = {
+  id: string;
+  size: {
+    width: number;
+    height: number;
+  }
+}

@@ -13,6 +13,10 @@ const AppStyles = ScaledSheet.create({
     position: 'absolute',
     bottom: '15@s',
     right: '15@s',
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });
 
