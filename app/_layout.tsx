@@ -1,8 +1,11 @@
+import React from "react";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -38,21 +41,33 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView>
-        <View style={AppStyles.container}>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen name="upload-image" options={{title: "Upload Image"}} />
-              <Stack.Screen name="create-workspace" options={{title: "Create Workspace"}} />
-            </Stack>
-          </ThemeProvider>
-        </View>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+    <GluestackUIProvider mode="light">
+      <QueryClientProvider client={queryClient}>
+        <GestureHandlerRootView>
+          <View style={AppStyles.container}>
+            <ThemeProvider
+              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="+not-found" />
+                <Stack.Screen
+                  name="upload-image"
+                  options={{ title: "Upload Image" }}
+                />
+                <Stack.Screen
+                  name="create-workspace"
+                  options={{
+                    title: "Create Workspace",
+                    presentation: "transparentModal",
+                    headerShown: false,
+                  }}
+                />
+              </Stack>
+            </ThemeProvider>
+          </View>
+        </GestureHandlerRootView>
+      </QueryClientProvider>
+    </GluestackUIProvider>
   );
 }

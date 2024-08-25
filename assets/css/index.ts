@@ -3,6 +3,7 @@ import { ScaledSheet } from "react-native-size-matters";
 const AppStyles = ScaledSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'transparent'
   },
   loadingBackground: {
     backgroundColor: "rgba(0, 0, 0, 0.5)",
