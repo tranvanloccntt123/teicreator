@@ -5,11 +5,18 @@ import { pickImage, first, calculateNewSizeImage, resizeImage } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/constants/QueryKeys";
 import { Workspace } from "@/type/store";
+import { useNavigation } from "expo-router";
+import { Button, ButtonText } from "@/components/ui/button";
+import { Box } from "@/components/ui/box";
+import { Text } from "@/components/ui/text";
+import { scale } from "react-native-size-matters";
 
 const UploadImage = () => {
+  const navigation = useNavigation();
   const { data: workspace } = useQuery<unknown, unknown, Workspace>({
     queryKey: [QueryKeys.CURRENT_WORKSPACE],
   });
+
   const { width, height } = useWindowDimensions();
   const [image, setImage] = React.useState<string>();
   const [imageSize, setImageSize] = React.useState<{
@@ -40,15 +47,35 @@ const UploadImage = () => {
     };
     uploadImage();
   }, []);
+
+  React.useEffect(() => {
+    if (image) {
+      navigation.setOptions({
+        headerRight: () => (
+          <Button className="mr-4" onPress={() => alert("This is a button!")}>
+            <ButtonText>Upload</ButtonText>
+          </Button>
+        ),
+      });
+    }
+  }, [image]);
+
   return (
-    <ScrollView style={AppStyles.container}>
-      {Boolean(image) && (
-        <Image
-          source={{ uri: image }}
-          style={{ width, height, resizeMode: "contain" }}
-        />
-      )}
-    </ScrollView>
+    <Box className="flex-1">
+      <ScrollView style={AppStyles.container}>
+        {Boolean(image) && (
+          <Image
+            source={{ uri: image }}
+            style={{ width, height, resizeMode: "contain" }}
+          />
+        )}
+      </ScrollView>
+      {
+        Boolean(imageSize) && <Box className="absolute p-4 bottom-2 left-2 rounded-md bg-primary-100">
+          <Text className="text-secondary-100">{`${imageSize.width} x ${imageSize.height}`}</Text>
+        </Box>
+      }
+    </Box>
   );
 };
 
