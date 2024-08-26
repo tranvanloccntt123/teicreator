@@ -1,5 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync } from "expo-image-manipulator";
+import { Workspace, WorkspaceSize } from "@/type/store";
+import uuid from "react-native-uuid";
 
 export const pickImage =
   async (): Promise<ImagePicker.ImagePickerResult | null> => {
@@ -78,3 +80,12 @@ export const first = <T = any>(arr: Array<T>) => arr?.[0] || undefined;
 
 export const last = <T = any>(arr: Array<T>) =>
   arr?.[arr?.length - 1] || undefined;
+
+export const createNewWorspace = ({
+  size,
+}: {
+  size: WorkspaceSize;
+}): Workspace => ({
+  id: uuid.v4() as string,
+  size,
+});

@@ -1,4 +1,4 @@
-export const configCreateWorkspace: ValidatorObject = {
+export const configCreateWorkspace: ValidatorObject<CreateWorkspaceParams> = {
   width: {
     required: {
       message: "Width is required",

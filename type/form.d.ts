@@ -1,0 +1,1 @@
+type CreateWorkspaceParams = "width" | "height";

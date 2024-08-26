@@ -16,6 +16,6 @@ type ConfigValidateForm = {
   min?: RequiredValidateForm<number>;
 };
 
-type ValidatorObject = { [_key: string]: ConfigValidateForm };
+type ValidatorObject<T = string> = Record<T, ConfigValidateForm>;
 
 type ValidatorResult = { status: boolean; message?: string };

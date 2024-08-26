@@ -21,10 +21,12 @@ export type EditImageState = {
   blur: SharedValue<number>;
 };
 
+export type WorkspaceSize = {
+  width: number;
+  height: number;
+};
+
 export type Workspace = {
   id: string;
-  size: {
-    width: number;
-    height: number;
-  }
-}
+  size: WorkspaceSize;
+};

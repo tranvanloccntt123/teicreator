@@ -63,6 +63,13 @@ export default function RootLayout() {
                     headerShown: false,
                   }}
                 />
+                <Stack.Screen
+                  name="workspace"
+                  options={{
+                    title: "Workspace",
+                    headerShown: false,
+                  }}
+                />
               </Stack>
             </ThemeProvider>
           </View>
