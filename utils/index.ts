@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import { manipulateAsync, FlipType, SaveFormat } from "expo-image-manipulator";
+import { manipulateAsync } from "expo-image-manipulator";
 
 export const pickImage =
   async (): Promise<ImagePicker.ImagePickerResult | null> => {

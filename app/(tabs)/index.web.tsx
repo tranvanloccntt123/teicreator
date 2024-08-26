@@ -5,8 +5,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/constants/QueryKeys";
 import { ImageUploading } from "@/type/store";
 import uuid from "react-native-uuid";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { Fab, FabLabel, FabIcon } from "@/components/ui/fab";
 
 export default function HomeScreen() {
   const queryClient = useQueryClient();
@@ -48,9 +49,9 @@ export default function HomeScreen() {
 
   return (
     <View style={[AppStyles.container]}>
-      <Link href="/create-workspace" style={AppStyles.fabButton}>
+      <Fab onPress={() => router.navigate('/create-workspace')} className="bg-transparent">
         <AntDesign name="plus" size={24} color="black" />
-      </Link>
+      </Fab>
     </View>
   );
 }

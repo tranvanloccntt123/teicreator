@@ -1,3 +1,4 @@
+import React from "react";
 import AppStyles from "@/assets/css";
 import { View } from "react-native";
 

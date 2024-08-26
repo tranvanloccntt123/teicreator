@@ -35,7 +35,7 @@
       enable = false;
       previews = {
         web = {
-          command = ["npm" "run" "web" "--" "--port" "$PORT"];
+          command = ["npm" "run" "web" "--" "--port" "8081"];
           manager = "web";
         };
         android = {
