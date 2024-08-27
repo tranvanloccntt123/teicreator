@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync } from "expo-image-manipulator";
-import { WorkspaceBase, WorkspaceSize } from "@/type/store";
+import { Vector, WorkspaceBase, WorkspaceSize } from "@/type/store";
 import uuid from "react-native-uuid";
 
 export const pickImage =
@@ -89,3 +89,10 @@ export const createNewWorspace = ({
   id: uuid.v4() as string,
   size,
 });
+
+export const radBetween2Vector = (vec1: Vector, vec2: Vector): number => {
+  var firstAngle = Math.atan2(vec1.y, vec1.x);
+  var secondAngle = Math.atan2(vec2.y, vec2.x);
+  const angle = secondAngle - firstAngle;
+  return angle;
+};

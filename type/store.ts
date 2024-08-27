@@ -42,3 +42,8 @@ export type Workspace = WorkspaceBase & {
 export type DraftWorkspace = WorkspaceBase & {
   components?: Array<Component<number>>;
 };
+
+export type Vector = {
+  x: number;
+  y: number;
+};

@@ -8,6 +8,67 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { Platform, ViewStyle } from "react-native";
 import { Box } from "@/components/ui/box";
+import Feather from "@expo/vector-icons/Feather";
+import { scale } from "react-native-size-matters";
+import { radBetween2Vector } from "@/utils";
+
+const RotateGestureComponent: React.FC<{
+  left?: number;
+  right?: number;
+  top?: number;
+  bottom?: number;
+  component: Component;
+}> = ({ left, right, top, bottom, component }) => {
+  const position: ViewStyle = {
+    position: "absolute",
+    top,
+    left,
+    right,
+    bottom,
+  };
+  const prevTranslationX = useSharedValue(0);
+  const prevTranslationY = useSharedValue(0);
+  const translationX = useSharedValue(0);
+  const translationY = useSharedValue(0);
+  const prevRotation = useSharedValue(component.rotate.value);
+  const pan = Gesture.Pan()
+    .onStart((event) => {
+      if (Platform.OS !== "web") {
+        prevTranslationX.value = translationX.value;
+        prevTranslationY.value = translationY.value;
+        prevRotation.value = component.rotate.value;
+      }
+    })
+    .onBegin(() => {
+      if (Platform.OS === "web") {
+        prevTranslationX.value = translationX.value;
+        prevTranslationY.value = translationY.value;
+        prevRotation.value = component.rotate.value;
+      }
+    })
+    .onUpdate((event) => {
+      translationX.value = prevTranslationX.value + event.translationX;
+      translationY.value = prevTranslationY.value + event.translationY;
+      component.rotate.value = prevRotation.value + radBetween2Vector(
+        {
+          x: prevTranslationX.value,
+          y: prevTranslationY.value,
+        },
+        {
+          x: translationX.value,
+          y: translationY.value,
+        }
+      );
+    })
+    .runOnJS(true);
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View style={[position]}>
+        <Feather name="rotate-cw" size={24} color="black" />
+      </Animated.View>
+    </GestureDetector>
+  );
+};
 
 const GestureComponent: React.FC<{ component: Component }> = ({
   component,
@@ -43,9 +104,6 @@ const GestureComponent: React.FC<{ component: Component }> = ({
       component.translateX.value = prevTranslationX.value + event.translationX;
       component.translateY.value = prevTranslationY.value + event.translationY;
     })
-    .onEnd(() => {
-      console.log("END PAN");
-    })
     .runOnJS(true);
 
   const rotation = Gesture.Rotation()
@@ -79,15 +137,23 @@ const GestureComponent: React.FC<{ component: Component }> = ({
       {
         scale: component.scale.value,
       },
+      {
+        rotate: `${component.rotate.value}rad`,
+      },
     ] as never,
   }));
 
   return (
-    <GestureDetector gesture={race}>
-      <Animated.View style={[size, style]}>
+    <Animated.View style={[size, style]}>
+      <GestureDetector gesture={race}>
         <Box className="flex-1 border-dotted border border-secondary-900" />
-      </Animated.View>
-    </GestureDetector>
+      </GestureDetector>
+      <RotateGestureComponent
+        component={component}
+        right={-scale(10)}
+        top={-scale(10)}
+      />
+    </Animated.View>
   );
 };
 
