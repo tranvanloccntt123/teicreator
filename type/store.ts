@@ -13,12 +13,16 @@ export type ImageUploading = {
   data: ImageSourcePropType;
 };
 
-export type EditImageState = {
-  translateX: SharedValue<number>;
-  translateY: SharedValue<number>;
-  scale: SharedValue<number>;
-  rotate: SharedValue<number>;
-  blur: SharedValue<number>;
+export type Component<TransformType = SharedValue<number>> = {
+  id: string;
+  data: ImageSourcePropType;
+  isBase64?: boolean;
+  translateX: TransformType;
+  translateY: TransformType;
+  scale: TransformType;
+  rotate: TransformType;
+  blur: TransformType;
+  size: WorkspaceSize;
 };
 
 export type WorkspaceSize = {
@@ -26,7 +30,15 @@ export type WorkspaceSize = {
   height: number;
 };
 
-export type Workspace = {
+export type WorkspaceBase = {
   id: string;
   size: WorkspaceSize;
+};
+
+export type Workspace = WorkspaceBase & {
+  components?: Array<Component>;
+};
+
+export type DraftWorkspace = WorkspaceBase & {
+  components?: Array<Component<number>>;
 };

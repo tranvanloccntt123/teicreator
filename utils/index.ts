@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync } from "expo-image-manipulator";
-import { Workspace, WorkspaceSize } from "@/type/store";
+import { WorkspaceBase, WorkspaceSize } from "@/type/store";
 import uuid from "react-native-uuid";
 
 export const pickImage =
@@ -85,7 +85,7 @@ export const createNewWorspace = ({
   size,
 }: {
   size: WorkspaceSize;
-}): Workspace => ({
+}): WorkspaceBase => ({
   id: uuid.v4() as string,
   size,
 });

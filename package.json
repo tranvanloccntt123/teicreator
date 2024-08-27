@@ -1,6 +1,6 @@
 {
   "name": "teicreator",
-  "main": "expo-router/entry",
+  "main": "index",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
@@ -55,7 +55,8 @@
     "react-native-svg": "^13.4.0",
     "react-native-uuid": "^2.0.2",
     "react-native-web": "~0.19.10",
-    "tailwindcss": "^3.4.10"
+    "tailwindcss": "^3.4.10",
+    "@react-native-async-storage/async-storage": "1.23.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

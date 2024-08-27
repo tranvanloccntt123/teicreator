@@ -17,7 +17,7 @@ import { formValidate } from "@/utils/validator";
 import { configCreateWorkspace } from "@/constants/Validator";
 import { QueryKeys } from "@/constants/QueryKeys";
 import { useQueryClient } from "@tanstack/react-query";
-import { Workspace } from "@/type/store";
+import { DraftWorkspace, Workspace } from "@/type/store";
 import { createNewWorspace } from "@/utils";
 import { router } from "expo-router";
 
@@ -65,6 +65,12 @@ const CreateWorkspace = () => {
         queryClient.setQueryData(
           [QueryKeys.CURRENT_WORKSPACE],
           (): Workspace => {
+            return newWorkspace;
+          }
+        );
+        queryClient.setQueryData(
+          [QueryKeys.DRAFT_WORKSPACE],
+          (): DraftWorkspace => {
             return newWorkspace;
           }
         );

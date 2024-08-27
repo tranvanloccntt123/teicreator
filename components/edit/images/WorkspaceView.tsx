@@ -4,8 +4,12 @@ import AppStyles from "@/assets/css";
 import { QueryKeys } from "@/constants/QueryKeys";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { Workspace } from "@/type/store";
+import ImagePreviewFromBase64 from "./ImagePreview";
+import { ImageURISource, useWindowDimensions } from "react-native";
 const WorkspaceView: React.FC<object> = () => {
-  const { data: workspace } = useQuery({
+  const { width, height } = useWindowDimensions();
+  const { data: workspace } = useQuery<unknown, unknown, Workspace>({
     queryKey: [QueryKeys.CURRENT_WORKSPACE],
   });
   React.useEffect(() => {
@@ -16,8 +20,21 @@ const WorkspaceView: React.FC<object> = () => {
     }
   }, [workspace]);
   return (
-    <Canvas style={AppStyles.container}>
-      <></>
+    <Canvas
+      style={{
+        width: workspace?.size?.width || width,
+        height: workspace?.size?.height || height,
+      }}
+    >
+      {(workspace?.components || [])?.map((component) => (
+        <ImagePreviewFromBase64
+          key={component.id}
+          base64={(component.data as ImageURISource).uri?.replace(
+            "data:image/jpeg;base64,",
+            ""
+          )}
+        />
+      ))}
     </Canvas>
   );
 };

@@ -13,9 +13,6 @@ const useScaleImage = ({
   heightDimensions: number;
 }): ImageDataSource => {
   const image = useImage(data);
-
-  const imageSize = (image?.width() || 1) / (image?.height() || 1);
-
   /* 
     size = width / height
     new_width = new_height * size;
