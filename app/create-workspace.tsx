@@ -15,11 +15,10 @@ import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
 import { formValidate } from "@/utils/validator";
 import { configCreateWorkspace } from "@/constants/Validator";
-import { QueryKeys } from "@/constants/QueryKeys";
 import { useQueryClient } from "@tanstack/react-query";
-import { DraftWorkspace, Workspace } from "@/type/store";
 import { createNewWorspace } from "@/utils";
 import { router } from "expo-router";
+import { pushWorkspace, setCurrentWorkspace, setDraftWorkspace } from "@/hooks/useCurrentWorkspace";
 
 const CreateWorkspace = () => {
   const queryClient = useQueryClient();
@@ -62,25 +61,9 @@ const CreateWorkspace = () => {
             height: Number(height),
           },
         });
-        queryClient.setQueryData(
-          [QueryKeys.CURRENT_WORKSPACE],
-          (): Workspace => {
-            return newWorkspace;
-          }
-        );
-        queryClient.setQueryData(
-          [QueryKeys.DRAFT_WORKSPACE],
-          (): DraftWorkspace => {
-            return newWorkspace;
-          }
-        );
-        queryClient.setQueryData(
-          [QueryKeys.WORKSPACE_LIST],
-          (oldData: Workspace[] | undefined): Workspace[] => [
-            ...(oldData || []),
-            newWorkspace,
-          ]
-        );
+        setCurrentWorkspace(newWorkspace, queryClient);
+        setDraftWorkspace(newWorkspace, queryClient);
+        pushWorkspace(newWorkspace, queryClient);
         router.navigate("/workspace");
       }
     },

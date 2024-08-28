@@ -90,9 +90,46 @@ export const createNewWorspace = ({
   size,
 });
 
-export const radBetween2Vector = (vec1: Vector, vec2: Vector): number => {
-  var firstAngle = Math.atan2(vec1.y, vec1.x);
-  var secondAngle = Math.atan2(vec2.y, vec2.x);
-  const angle = secondAngle - firstAngle;
-  return angle;
+export function radFromAngle(newAngle: number, oldRadian: number) {
+  type RotationDirection = "clockwise" | "counterClockwise";
+  // Factor the angle to a 0 to 1 scale and normalize it to the current
+  // value of the animation controller.
+  var radian = newAngle / 360 + Math.floor(oldRadian);
+  // Determine which dire
+  let direction: RotationDirection = "clockwise";
+
+  let clockwise = (radian > oldRadian ? radian : radian + 1.0) - oldRadian;
+  let counterClockwise =
+    oldRadian - (radian < oldRadian ? radian : radian - 1.0);
+
+  direction = clockwise <= counterClockwise ? "clockwise" : "counterClockwise";
+
+  // Adjust the angle if needed to rotate in the defined direction.
+  if (direction === "clockwise") {
+    if (radian < oldRadian) {
+      radian += 1.0;
+    }
+  } else {
+    if (radian > oldRadian) {
+      radian -= 1.0;
+    }
+  }
+  return radian;
+}
+
+export const radBetween2Vector = (
+  vec1: Vector,
+  vec2: Vector,
+  radian: number
+): number => {
+  const angle = angleBetween2Vector(vec1, vec2);
+  return radFromAngle(angle, radian || 0);
 };
+
+export function angleBetween2Vector(vec1: Vector, vec2: Vector) {
+  var deltaX = vec2.x - vec1.x;
+  var deltaY = vec2.y - vec1.y;
+  var angle = Math.atan2(deltaY, deltaX);
+  var degrees = (180 * angle) / Math.PI;
+  return degrees; //degrees
+}

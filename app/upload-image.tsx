@@ -2,9 +2,7 @@ import React from "react";
 import AppStyles from "@/assets/css";
 import { Image, ScrollView, useWindowDimensions } from "react-native";
 import { pickImage, first, calculateNewSizeImage, resizeImage } from "@/utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { QueryKeys } from "@/constants/QueryKeys";
-import { DraftWorkspace, Workspace } from "@/type/store";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
@@ -12,12 +10,11 @@ import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import uuid from "react-native-uuid";
 import { makeMutable } from "react-native-reanimated";
+import useCurrentWorkspace, { pushComponentToCurrentWorkspace, pushComponentToDraftWorkspace } from "@/hooks/useCurrentWorkspace";
 const UploadImage = () => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const { data: workspace } = useQuery<unknown, unknown, Workspace>({
-    queryKey: [QueryKeys.CURRENT_WORKSPACE],
-  });
+  const { data: workspace } = useCurrentWorkspace();
   const { width, height } = useWindowDimensions();
   const [image, setImage] = React.useState<string>();
   const [imageSize, setImageSize] = React.useState<{
@@ -70,20 +67,8 @@ const UploadImage = () => {
       size: imageSize,
       isBase64: true,
     };
-    queryClient.setQueryData(
-      [QueryKeys.CURRENT_WORKSPACE],
-      (oldData: Workspace): Workspace => ({
-        ...oldData,
-        components: [...(oldData?.components || []), newComponent],
-      })
-    );
-    queryClient.setQueryData(
-      [QueryKeys.DRAFT_WORKSPACE],
-      (oldData: DraftWorkspace): DraftWorkspace => ({
-        ...oldData,
-        components: [...(oldData?.components || []), newDraftComponent],
-      })
-    );
+    pushComponentToCurrentWorkspace(newComponent, queryClient);
+    pushComponentToDraftWorkspace(newDraftComponent, queryClient);
     navigation.goBack();
   };
 

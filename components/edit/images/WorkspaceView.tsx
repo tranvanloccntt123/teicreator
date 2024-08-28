@@ -1,17 +1,14 @@
 import React from "react";
 import { Canvas } from "@shopify/react-native-skia";
-import AppStyles from "@/assets/css";
-import { QueryKeys } from "@/constants/QueryKeys";
-import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Workspace } from "@/type/store";
 import ImagePreviewFromBase64 from "./ImagePreview";
-import { ImageURISource, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
+import { Box } from "@/components/ui/box";
+import { scale } from "react-native-size-matters";
+import useCurrentWorkspace from "@/hooks/useCurrentWorkspace";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();
-  const { data: workspace } = useQuery<unknown, unknown, Workspace>({
-    queryKey: [QueryKeys.CURRENT_WORKSPACE],
-  });
+  const { data: workspace } = useCurrentWorkspace();
   React.useEffect(() => {
     if (!workspace) {
       setTimeout(() => {
@@ -20,22 +17,28 @@ const WorkspaceView: React.FC<object> = () => {
     }
   }, [workspace]);
   return (
-    <Canvas
+    <Box
       style={{
-        width: workspace?.size?.width || width,
-        height: workspace?.size?.height || height,
+        width: (workspace?.size?.width + scale(10)) || width,
+        height: (workspace?.size?.height + scale(10)) || height,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#a2a2a350',
+        borderRadius: scale(5)
       }}
     >
-      {(workspace?.components || [])?.map((component) => (
-        <ImagePreviewFromBase64
-          key={component.id}
-          base64={(component.data as ImageURISource).uri?.replace(
-            "data:image/jpeg;base64,",
-            ""
-          )}
-        />
-      ))}
-    </Canvas>
+      <Canvas
+        style={{
+          width: workspace?.size?.width || width,
+          height: workspace?.size?.height || height,
+        }}
+      >
+        {(workspace?.components || [])?.map((component) => (
+          <ImagePreviewFromBase64 key={component.id} component={component} />
+        ))}
+      </Canvas>
+    </Box>
   );
 };
 

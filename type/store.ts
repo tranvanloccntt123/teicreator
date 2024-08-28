@@ -37,6 +37,7 @@ export type WorkspaceBase = {
 
 export type Workspace = WorkspaceBase & {
   components?: Array<Component>;
+  componentEditingId?: string;
 };
 
 export type DraftWorkspace = WorkspaceBase & {
