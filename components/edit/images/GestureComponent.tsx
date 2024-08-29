@@ -49,8 +49,9 @@ const RotateGestureComponent: React.FC<{
   );
 };
 
-const GestureComponent: React.FC<{ component: Component }> = ({
+const GestureComponent: React.FC<{ component: Component; index: number }> = ({
   component,
+  index,
 }) => {
   const prevScale = useSharedValue(component.scale.value);
   const prevTranslationX = useSharedValue(component.translateX.value);
@@ -100,7 +101,7 @@ const GestureComponent: React.FC<{ component: Component }> = ({
       width: component.size?.width || 1,
       height: component.size?.height || 1,
       position: "absolute",
-      zIndex: GESTURE_Z_INDEX,
+      zIndex: GESTURE_Z_INDEX + index,
     }),
     [component]
   );
