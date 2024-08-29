@@ -15,7 +15,8 @@
     "production": {
       "channel": "production",
       "android": {
-        "resourceClass": "medium"
+        "resourceClass": "medium",
+        "buildType": "apk"
       }
     }
   },

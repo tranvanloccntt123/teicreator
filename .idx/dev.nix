@@ -21,21 +21,20 @@
       };
       # Runs when a workspace restarted
       onStart = {
-        # connect-device = ''
-        #   adb -s localhost:5554 wait-for-device
-        # '';
-        # android = ''
-        #   npm run android -- --port 5554 --tunnel
-        # '';
+        connect-device = ''
+          adb -s localhost:5554 wait-for-device
+        '';
+        android = ''
+          npm run android -- --port 5554 --tunnel
+        '';
       };
     };
     # Enable previews and customize configuration
     previews = {
-      # enable = true;
-      enable = false;
+      enable = true;
       previews = {
         web = {
-          command = ["npm" "run" "web" "--" "--port" "8081"];
+          command = ["npm" "run" "web" "--" "--port" "$PORT"];
           manager = "web";
         };
         android = {
