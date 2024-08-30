@@ -9,16 +9,18 @@ import {
   FormControlLabelText,
 } from "@/components/ui/form-control";
 import { Heading } from "@/components/ui/heading";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { Input, InputField } from "@/components/ui/input";
 import { VStack } from "@/components/ui/vstack";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { formValidate } from "@/utils/validator";
 import { configCreateWorkspace } from "@/constants/Validator";
 import { useQueryClient } from "@tanstack/react-query";
 import { createNewWorspace } from "@/utils";
 import { router } from "expo-router";
 import { pushWorkspace, setCurrentWorkspace, setDraftWorkspace } from "@/hooks/useCurrentWorkspace";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { HStack } from "@/components/ui/hstack";
 
 const CreateWorkspace = () => {
   const queryClient = useQueryClient();
@@ -74,7 +76,12 @@ const CreateWorkspace = () => {
     <View style={AppStyles.container}>
       <Center className="bg-primary-100 bg-opacity-50 flex-1">
         <VStack space="sm" className="bg-white p-5 rounded-md">
-          <Heading>CREATE WORKSPACE</Heading>
+          <HStack>
+            <Heading className="mr-2">CREATE WORKSPACE</Heading>
+            <Pressable onPress={router.back}>
+              <AntDesign name="close" size={24} color="black" />
+            </Pressable>
+          </HStack>
           <FormControl>
             <FormControlLabel>
               <FormControlLabelText>Width</FormControlLabelText>

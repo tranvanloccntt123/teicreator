@@ -1,17 +1,16 @@
 import React from "react";
-import AppStyles from "@/assets/css";
 import { Fab } from "@/components/ui/fab";
 import { AntDesign } from "@expo/vector-icons";
-import { WithSkiaWeb } from "@shopify/react-native-skia/lib/module/web";
-import { ScrollView, Text } from "react-native";
 import { router } from "expo-router";
 import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
 import { WorkspaceControlView } from "@/components/edit/images";
 import WorkspaceView from "@/components/edit/images/WorkspaceView";
+import WorkspaceHeaderView from "@/components/edit/images/WorkspaceHeaderView";
 const Workspace = () => {
   return (
-    <Box className="flex-1">
+    <Box className="flex-1 bg-primary-100">
+      <WorkspaceHeaderView />
       <Center className="flex-1">
         <WorkspaceView />
       </Center>

@@ -3,7 +3,7 @@ import { Component } from "@/type/store";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle } from "react-native";
-import { COMPONENT_Z_INDEX } from "@/constants/Workspace";
+import { GESTURE_Z_INDEX } from "@/constants/Workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import { setCurrentComponent } from "@/hooks/useCurrentWorkspace";
 
@@ -13,7 +13,9 @@ const GestureTabComponent: React.FC<{
 }> = ({ component, index }) => {
   const queryClient = useQueryClient();
   const tap = Gesture.Tap().onEnd(() => {
-    setCurrentComponent(component.id, queryClient);
+    if (component.id) {
+      setCurrentComponent(component.id, queryClient);
+    }
   }).runOnJS(true);
 
   const size: ViewStyle = React.useMemo(
@@ -21,7 +23,7 @@ const GestureTabComponent: React.FC<{
       width: component.size?.width || 1,
       height: component.size?.height || 1,
       position: "absolute",
-      zIndex: COMPONENT_Z_INDEX + index,
+      zIndex: GESTURE_Z_INDEX + index,
     }),
     [component]
   );

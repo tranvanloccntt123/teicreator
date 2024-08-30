@@ -88,4 +88,20 @@ export const clearCurrentComponent = (queryClient: QueryClient) => {
   );
 };
 
+export const deleteComponentById = (id: string, queryClient) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => ({
+      ...oldData,
+      components: (oldData?.components || []).filter(
+        (component) => component.id !== id
+      ),
+      componentEditingId:
+        oldData.componentEditingId === id
+          ? undefined
+          : oldData.componentEditingId,
+    })
+  );
+};
+
 export default useCurrentWorkspace;

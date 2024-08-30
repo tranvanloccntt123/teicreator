@@ -10,7 +10,7 @@ const GestureTapClearComponent = () => {
   const queryClient = useQueryClient();
   const tap = Gesture.Tap().onEnd(() => {
     clearCurrentComponent(queryClient);
-  });
+  }).runOnJS(true);
   const style = React.useMemo<StyleProp<ViewStyle>>(
     () => ({
       position: "absolute",
