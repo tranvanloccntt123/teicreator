@@ -18,7 +18,6 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { View } from "react-native";
 import AppStyles from "@/assets/css";
-import 'expo-dev-client';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

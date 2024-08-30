@@ -24,19 +24,19 @@
         connect-device = ''
           adb -s localhost:5554 wait-for-device
         '';
-        android = ''
-          npm run android -- --port 5554 --tunnel
-        '';
+        # android = ''
+        #   npm run android -- --port 5554 --tunnel
+        # '';
       };
     };
     # Enable previews and customize configuration
     previews = {
       enable = true;
       previews = {
-        web = {
-          command = ["npm" "run" "web" "--" "--port" "$PORT"];
-          manager = "web";
-        };
+        # web = {
+        #   command = ["npm" "run" "web" "--" "--port" "$PORT"];
+        #   manager = "web";
+        # };
         android = {
           # noop
           command = ["tail" "-f" "/dev/null"];

@@ -14,7 +14,7 @@ const GestureTabComponent: React.FC<{
   const queryClient = useQueryClient();
   const tap = Gesture.Tap().onEnd(() => {
     setCurrentComponent(component.id, queryClient);
-  });
+  }).runOnJS(true);
 
   const size: ViewStyle = React.useMemo(
     () => ({

@@ -14,6 +14,7 @@ const WorkspaceControlView = () => {
         height: workspace?.size?.height || 1,
       }}
     >
+      <GestureTapClearComponent />
       {(workspace?.components || []).map((component, index) =>
         component.id === workspace.componentEditingId ? (
           <GestureComponent component={component} key={component.id} index={index} />
