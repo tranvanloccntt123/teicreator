@@ -24,9 +24,9 @@
         connect-device = ''
           adb -s localhost:5554 wait-for-device
         '';
-        # android = ''
-        #   npm run android -- --port 5554 --tunnel
-        # '';
+        start = ''
+          npx expo start --port 8082 --go
+        '';
       };
     };
     # Enable previews and customize configuration
