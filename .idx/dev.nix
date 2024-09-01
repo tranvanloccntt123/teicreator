@@ -24,14 +24,17 @@
         connect-device = ''
           adb -s localhost:5554 wait-for-device
         '';
+        install-expo-apk = ''
+          adb install -r /home/user/teicreator/expo.apk
+        '';
         start = ''
-          npx expo start --port 8082 --go
+          npx expo start --port 8082 --go && w
         '';
       };
     };
     # Enable previews and customize configuration
     previews = {
-      enable = true;
+      enable = false;
       previews = {
         # web = {
         #   command = ["npm" "run" "web" "--" "--port" "$PORT"];

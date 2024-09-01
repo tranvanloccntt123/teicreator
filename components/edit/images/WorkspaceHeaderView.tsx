@@ -21,10 +21,10 @@ const WorkspaceHeaderView = () => {
 
   return (
     <Animated.View style={[styles.container]}>
-      <Box className="flex-1 bg-primary-600">
-        {Boolean(workspace.componentEditingId) && (
+      <Box className="flex-1 bg-primary-600 p-4">
+        {Boolean(workspace?.componentEditingId) && (
           <HStack className="items-center">
-            <Button onPress={deleteCurrentComponent}>
+            <Button className="bg-transparent" onPress={deleteCurrentComponent} variant="solid">
               <AntDesign name="delete" size={scale(14)} color="white" />
             </Button>
           </HStack>
