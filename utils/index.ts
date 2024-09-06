@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync } from "expo-image-manipulator";
-import { Vector, WorkspaceBase, WorkspaceSize } from "@/type/store";
+import { Component, Vector, WorkspaceBase, WorkspaceSize } from "@/type/store";
 import uuid from "react-native-uuid";
 
 export const pickImage =
@@ -133,3 +133,55 @@ export function angleBetween2Vector(vec1: Vector, vec2: Vector) {
   var degrees = (180 * angle) / Math.PI;
   return degrees; //degrees
 }
+
+export const distanceBetween2Vector = (vec1: Vector, vec2: Vector) => {
+  return Math.sqrt(Math.pow(vec2.x - vec1.x, 2) + Math.pow(vec2.y - vec1.y, 2));
+};
+
+export const vectorOnCircleLine = (vec1: Vector, R: number) => {
+  // Khởi tạo vector ban đầu với tọa độ x, y
+  let vector = { x: vec1.x, y: vec1.y }; // Vector với tọa độ x, y
+
+  // Tính độ dài của vector ban đầu
+  let vectorLength = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+
+  // Độ dài của vector mới cùng hướng
+  let newLength = R; // Độ dài của vector mới được nhập vào
+
+  // Chuẩn hóa vector ban đầu để tìm vector đơn vị
+  let unitVector = {
+    x: vector.x / vectorLength,
+    y: vector.y / vectorLength,
+  };
+
+  // Tính tọa độ của vector mới có độ dài newLength
+  let newVector = {
+    x: unitVector.x * newLength,
+    y: unitVector.y * newLength,
+  };
+  return newVector;
+};
+
+export const vectorOnDiagonalLine = (
+  vec1: Vector,
+  RWidth: number,
+  RHeight: number
+) => {
+  // Khởi tạo tọa độ của vector A
+  const vector = { x: RWidth, y: -RHeight };
+
+  // Biết trước Y của vector B
+  const Y_B = vec1.y;
+
+  // Tìm tọa độ X của vector B
+  const X_B = vector.x * (Y_B / vector.y);
+
+  return { x: X_B, y: Y_B };
+};
+
+export const componentSize = (component: Component) => {
+  return {
+    width: component.size.width * component.scale.value,
+    height: component.size.height * component.scale.value,
+  };
+};

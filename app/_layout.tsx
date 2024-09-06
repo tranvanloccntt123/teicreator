@@ -15,14 +15,13 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 //Query Client
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { View } from "react-native";
 import AppStyles from "@/assets/css";
+import queryClient from "@/services/queryClient";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient({});
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -67,6 +66,13 @@ export default function RootLayout() {
                   name="workspace"
                   options={{
                     title: "Workspace",
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="log"
+                  options={{
+                    title: "DEV Log",
                     headerShown: false,
                   }}
                 />

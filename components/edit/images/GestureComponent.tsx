@@ -18,48 +18,81 @@ import { deleteComponentById } from "@/hooks/useCurrentWorkspace";
 import { useQueryClient } from "@tanstack/react-query";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import usePositionXY from "@/hooks/usePosition";
-
-const BTN_OPTION_ICON_SIZE = scale(12);
-const BTN_OPTION_SIZE = scale(24);
+import {
+  componentSize,
+  distanceBetween2Vector,
+  vectorOnCircleLine,
+  vectorOnDiagonalLine,
+} from "@/utils";
+import {
+  BTN_OPTION_ICON_SIZE,
+  BTN_OPTION_SIZE,
+  MAX_SCALE,
+  MIN_SCALE,
+} from "@/constants/EditImage";
 
 const ResizeComponent: React.FC<{ component: Component }> = ({ component }) => {
   const R = React.useMemo(
     () => component.size.width / 2 + BTN_OPTION_SIZE / 2,
     [component]
   );
-  const translate = usePositionXY({ x: R, y: -R/2 });
+  const translate = usePositionXY({ x: R, y: -R / 2 });
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
+  const prevScale = useSharedValue(component.scale.value);
   const position: ViewStyle = {
     position: "absolute",
-    top: component.size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: component.size.width / 2 - BTN_OPTION_SIZE / 2,
+    top: 0,
+    left: 0,
     zIndex: GESTURE_Z_INDEX + 2,
   };
   const pan = Gesture.Pan()
     .onBegin(() => {
       prevTranslate.x.value = translate.x.value;
       prevTranslate.y.value = translate.y.value;
+      prevScale.value = component.scale.value;
     })
     .onUpdate((event) => {
-      translate.x.value = prevTranslate.x.value + event.translationX;
-      translate.y.value = prevTranslate.y.value + event.translationY;
+      //TODO:
+      const translateX = prevTranslate.x.value + event.translationX;
+      const translateY = prevTranslate.y.value + event.translationY;
+      const rePositionXY = vectorOnDiagonalLine(
+        { x: translateX, y: translateY },
+        component.size.width,
+        component.size.height
+      );
+      console.log(translateX, translateY, prevTranslate.x.value, prevTranslate.y.value);
+      //END TODO:
+      //clamp(prevScale.value * event.scale, 0.5, 3.0);
+      const distance = distanceBetween2Vector(
+        { x: rePositionXY.x, y: rePositionXY.y },
+        { x: prevTranslate.x.value, y: prevTranslate.y.value }
+      );
+      const positionXYDistance = distanceBetween2Vector(
+        { x: rePositionXY.x, y: rePositionXY.y },
+        { x: 0, y: 0 }
+      );
+      const translateDistance = distanceBetween2Vector(
+        { x: 0, y: 0 },
+        { x: prevTranslate.x.value, y: prevTranslate.y.value }
+      );
+      const distancePercent =
+        (distance / component.size.width + distance / component.size.height) /
+        2;
+      const scaling =
+        prevScale.value -
+        (positionXYDistance < translateDistance ? 1 : -1) * distancePercent;
+      if (scaling >= MIN_SCALE || scaling <= MAX_SCALE) {
+        component.scale.value = clamp(
+          prevScale.value -
+            (positionXYDistance < translateDistance ? 1 : -1) * distancePercent,
+          MIN_SCALE,
+          MAX_SCALE
+        );
+        translate.x.value = prevTranslate.x.value + event.translationX;
+        translate.y.value = prevTranslate.y.value + event.translationY;
+      }
     })
     .runOnJS(true);
-
-  const positionXY = useDerivedValue(() => {
-    // Khởi tạo tọa độ của vector A
-    const vector = { x: R, y: 0 };
-
-    // Biết trước Y của vector B
-    const Y_B = translate.y.value;
-
-    // Tìm tọa độ X của vector B
-    const X_B = vector.x * (Y_B / vector.y);
-
-    console.log(`Tọa độ của vector B: X_B = ${X_B}, Y_B = ${Y_B}`);
-
-    return { x: X_B, y: Y_B };
-  });
 
   const transformStyle = useAnimatedStyle(() => {
     return {
@@ -76,7 +109,7 @@ const ResizeComponent: React.FC<{ component: Component }> = ({ component }) => {
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[position, transformStyle]}>
+      <Animated.View style={[position]}>
         <Box className="bg-white/54 rounded-full" style={styles.icons}>
           <Ionicons name="resize" size={BTN_OPTION_ICON_SIZE} color="black" />
         </Box>
@@ -117,34 +150,16 @@ const RotateGestureComponent: React.FC<{
   step: number;
 }> = ({ component, step }) => {
   const initRotation = React.useMemo(() => component.rotate.value, []);
-  const R = React.useMemo(
-    () => component.size.width / 2 + BTN_OPTION_SIZE / 2,
-    [component]
+  const R = useDerivedValue(
+    () => componentSize(component).width / 2 + BTN_OPTION_SIZE / 2
   );
-  const translate = usePositionXY({ x: R, y: 0 });
+  const translate = usePositionXY({ x: R.value, y: 0 });
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
   const positionXY = useDerivedValue(() => {
-    // Khởi tạo vector ban đầu với tọa độ x, y
-    let vector = { x: translate.x.value, y: translate.y.value }; // Vector với tọa độ x, y
-
-    // Tính độ dài của vector ban đầu
-    let vectorLength = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
-
-    // Độ dài của vector mới cùng hướng
-    let newLength = R; // Độ dài của vector mới được nhập vào
-
-    // Chuẩn hóa vector ban đầu để tìm vector đơn vị
-    let unitVector = {
-      x: vector.x / vectorLength,
-      y: vector.y / vectorLength,
-    };
-
-    // Tính tọa độ của vector mới có độ dài newLength
-    let newVector = {
-      x: unitVector.x * newLength,
-      y: unitVector.y * newLength,
-    };
-    return newVector;
+    return vectorOnCircleLine(
+      { x: translate.x.value, y: translate.y.value },
+      R.value
+    );
   });
 
   const position: ViewStyle = {
@@ -213,7 +228,11 @@ const GestureComponent: React.FC<{ component: Component; index: number }> = ({
       prevScale.value = component.scale.value;
     })
     .onUpdate((event) => {
-      component.scale.value = clamp(prevScale.value * event.scale, 0.5, 3.0);
+      component.scale.value = clamp(
+        prevScale.value * event.scale,
+        MIN_SCALE,
+        MAX_SCALE
+      );
     })
     .runOnJS(true);
 
@@ -260,16 +279,16 @@ const GestureComponent: React.FC<{ component: Component; index: number }> = ({
     transform: [
       { translateX: component.translateX.value },
       { translateY: component.translateY.value },
-      {
-        scale: component.scale.value,
-      },
     ] as never,
   }));
 
-  const rotationStyle = useAnimatedStyle(() => ({
+  const contentStyle = useAnimatedStyle(() => ({
     transform: [
       {
         rotate: `${component.rotate.value}rad`,
+      },
+      {
+        scale: component.scale.value,
       },
     ] as never,
   }));
@@ -277,7 +296,7 @@ const GestureComponent: React.FC<{ component: Component; index: number }> = ({
   return (
     <Animated.View style={[size, translateStyle]}>
       <GestureDetector gesture={race}>
-        <Animated.View style={[size, rotationStyle]}>
+        <Animated.View style={[size, contentStyle]}>
           <Box className="flex-1 border-dotted border border-secondary-900" />
         </Animated.View>
       </GestureDetector>

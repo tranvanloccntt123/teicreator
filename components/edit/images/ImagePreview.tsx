@@ -18,8 +18,11 @@ const ImagePreviewFromBase64: React.FC<{ component: Component }> = ({
   );
   const data = Skia.Data.fromBase64(base64);
   const image = Skia.Image.MakeImageFromEncoded(data);
-  const rotateTransform = useDerivedValue(
-    (): Transforms3d => [{ rotate: component.rotate.value }],
+  const contentTransform = useDerivedValue(
+    (): Transforms3d => [
+      { rotate: component.rotate.value },
+      { scale: component.scale.value },
+    ],
     [component.rotate]
   );
   const translateTransform = useDerivedValue(
@@ -36,9 +39,10 @@ const ImagePreviewFromBase64: React.FC<{ component: Component }> = ({
     }),
     [component.translateX, component.translateY]
   );
+
   return (
     <Group transform={translateTransform}>
-      <Group origin={rotateOrigin} transform={rotateTransform}>
+      <Group origin={rotateOrigin} transform={contentTransform}>
         <Image
           image={image}
           fit="contain"

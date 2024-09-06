@@ -21,14 +21,14 @@
       };
       # Runs when a workspace restarted
       onStart = {
-        connect-device = ''
-          adb -s localhost:5554 wait-for-device
-        '';
-        install-expo-apk = ''
-          adb install -r /home/user/teicreator/expo.apk
-        '';
+        # connect-device = ''
+        #   adb -s localhost:5554 wait-for-device
+        # '';
+        # install-expo-apk = ''
+        #   adb install -r /home/user/teicreator/expo.apk
+        # '';
         start = ''
-          npx expo start --port 8082 --go && w
+          npx expo start --port 8083 --go && w
         '';
       };
     };
