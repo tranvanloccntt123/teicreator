@@ -49,3 +49,11 @@ export type Vector = {
   y: number;
 };
 
+export type LogType = "Error" | "Warning" | "Info";
+
+export type DevLog = {
+  label: string;
+  type: LogType;
+  data: Object | string | number;
+  id: string;
+};

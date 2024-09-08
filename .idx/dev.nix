@@ -28,7 +28,7 @@
         #   adb install -r /home/user/teicreator/expo.apk
         # '';
         start = ''
-          npx expo start --port 8083 --go && w
+          npx expo start --port 8083
         '';
       };
     };

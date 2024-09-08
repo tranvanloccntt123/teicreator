@@ -21,6 +21,8 @@ import usePositionXY from "@/hooks/usePosition";
 import {
   componentSize,
   distanceBetween2Vector,
+  radToDegree,
+  resizePosition,
   vectorOnCircleLine,
   vectorOnDiagonalLine,
 } from "@/utils";
@@ -30,67 +32,54 @@ import {
   MAX_SCALE,
   MIN_SCALE,
 } from "@/constants/EditImage";
+import { log } from "@/hooks/useDev";
 
 const ResizeComponent: React.FC<{ component: Component }> = ({ component }) => {
-  const R = React.useMemo(
-    () => component.size.width / 2 + BTN_OPTION_SIZE / 2,
-    [component]
-  );
-  const translate = usePositionXY({ x: R, y: -R / 2 });
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
   const prevScale = useSharedValue(component.scale.value);
+  const positionXY = useDerivedValue(() => {
+    return {
+      x: resizePosition(component).x,
+      y: resizePosition(component).y,
+    };
+  });
   const position: ViewStyle = {
     position: "absolute",
-    top: 0,
-    left: 0,
+    top: -BTN_OPTION_SIZE,
+    right: -BTN_OPTION_SIZE,
     zIndex: GESTURE_Z_INDEX + 2,
   };
   const pan = Gesture.Pan()
     .onBegin(() => {
-      prevTranslate.x.value = translate.x.value;
-      prevTranslate.y.value = translate.y.value;
+      prevTranslate.x.value = positionXY.value.x;
+      prevTranslate.y.value = positionXY.value.y;
       prevScale.value = component.scale.value;
     })
     .onUpdate((event) => {
       //TODO:
       const translateX = prevTranslate.x.value + event.translationX;
       const translateY = prevTranslate.y.value + event.translationY;
-      const rePositionXY = vectorOnDiagonalLine(
+      const newPositionXY = vectorOnDiagonalLine(
         { x: translateX, y: translateY },
         component.size.width,
         component.size.height
       );
-      console.log(translateX, translateY, prevTranslate.x.value, prevTranslate.y.value);
       //END TODO:
       //clamp(prevScale.value * event.scale, 0.5, 3.0);
       const distance = distanceBetween2Vector(
-        { x: rePositionXY.x, y: rePositionXY.y },
-        { x: prevTranslate.x.value, y: prevTranslate.y.value }
-      );
-      const positionXYDistance = distanceBetween2Vector(
-        { x: rePositionXY.x, y: rePositionXY.y },
-        { x: 0, y: 0 }
-      );
-      const translateDistance = distanceBetween2Vector(
-        { x: 0, y: 0 },
+        { x: translateX, y: translateY },
         { x: prevTranslate.x.value, y: prevTranslate.y.value }
       );
       const distancePercent =
         (distance / component.size.width + distance / component.size.height) /
         2;
+      const isScaleLarge = prevTranslate.y.value > translateY;
       const scaling =
-        prevScale.value -
-        (positionXYDistance < translateDistance ? 1 : -1) * distancePercent;
+        prevScale.value - (!isScaleLarge ? 1 : -1) * distancePercent;
       if (scaling >= MIN_SCALE || scaling <= MAX_SCALE) {
-        component.scale.value = clamp(
-          prevScale.value -
-            (positionXYDistance < translateDistance ? 1 : -1) * distancePercent,
-          MIN_SCALE,
-          MAX_SCALE
-        );
-        translate.x.value = prevTranslate.x.value + event.translationX;
-        translate.y.value = prevTranslate.y.value + event.translationY;
+        component.scale.value = clamp(scaling, MIN_SCALE, MAX_SCALE);
       }
+      log(radToDegree(component.rotate.value));
     })
     .runOnJS(true);
 
@@ -98,10 +87,10 @@ const ResizeComponent: React.FC<{ component: Component }> = ({ component }) => {
     return {
       transform: [
         {
-          translateX: translate.x.value,
+          translateX: positionXY.value.x,
         },
         {
-          translateY: translate.y.value,
+          translateY: positionXY.value.y,
         },
       ] as never,
     };
@@ -109,7 +98,7 @@ const ResizeComponent: React.FC<{ component: Component }> = ({ component }) => {
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[position]}>
+      <Animated.View style={[position, transformStyle]}>
         <Box className="bg-white/54 rounded-full" style={styles.icons}>
           <Ionicons name="resize" size={BTN_OPTION_ICON_SIZE} color="black" />
         </Box>
@@ -287,22 +276,29 @@ const GestureComponent: React.FC<{ component: Component; index: number }> = ({
       {
         rotate: `${component.rotate.value}rad`,
       },
+    ] as never,
+  }));
+
+  const scaleStyle = useAnimatedStyle(() => ({
+    transform: [
       {
         scale: component.scale.value,
       },
-    ] as never,
+    ],
   }));
 
   return (
     <Animated.View style={[size, translateStyle]}>
-      <GestureDetector gesture={race}>
-        <Animated.View style={[size, contentStyle]}>
-          <Box className="flex-1 border-dotted border border-secondary-900" />
-        </Animated.View>
-      </GestureDetector>
+      <Animated.View style={[size, contentStyle]}>
+        <GestureDetector gesture={race}>
+          <Animated.View style={[size, scaleStyle]}>
+            <Box className="flex-1 border-dotted border border-secondary-900" />
+          </Animated.View>
+        </GestureDetector>
+        <ResizeComponent component={component} />
+      </Animated.View>
       <RotateGestureComponent step={0.1} component={component} />
       <TrashComponent component={component} />
-      <ResizeComponent component={component} />
     </Animated.View>
   );
 };

@@ -168,7 +168,7 @@ export const vectorOnDiagonalLine = (
   RHeight: number
 ) => {
   // Khởi tạo tọa độ của vector A
-  const vector = { x: RWidth, y: -RHeight };
+  const vector = { x: RWidth, y: RHeight };
 
   // Biết trước Y của vector B
   const Y_B = vec1.y;
@@ -185,3 +185,12 @@ export const componentSize = (component: Component) => {
     height: component.size.height * component.scale.value,
   };
 };
+
+export const resizePosition = (component: Component): Vector => {
+  return {
+    x: -(component.size.width - componentSize(component).width) / 2,
+    y: (component.size.height - componentSize(component).height) / 2,
+  };
+};
+
+export const radToDegree = (radians: number) => radians * (180 / Math.PI);
