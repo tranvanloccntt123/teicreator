@@ -2,6 +2,7 @@ import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync } from "expo-image-manipulator";
 import { Component, Vector, WorkspaceBase, WorkspaceSize } from "@/type/store";
 import uuid from "react-native-uuid";
+import { BTN_OPTION_SIZE } from "@/constants/EditImage";
 
 export const pickImage =
   async (): Promise<ImagePicker.ImagePickerResult | null> => {
@@ -188,9 +189,16 @@ export const componentSize = (component: Component) => {
 
 export const resizePosition = (component: Component): Vector => {
   return {
-    x: -(component.size.width - componentSize(component).width) / 2,
-    y: (component.size.height - componentSize(component).height) / 2,
+    x: componentSize(component).width / 2 + BTN_OPTION_SIZE / 2,
+    y: -componentSize(component).height / 2 - BTN_OPTION_SIZE / 2,
   };
 };
 
 export const radToDegree = (radians: number) => radians * (180 / Math.PI);
+
+export const vectorFromRadians = (length: number, radians: number): Vector => {
+  const x = length * Math.cos(radians);
+  const y = length * Math.sin(radians);
+
+  return { x, y };
+};
