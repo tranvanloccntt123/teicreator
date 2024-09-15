@@ -1,29 +1,41 @@
 import React from "react";
-import { Component } from "@/type/store";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { Component, FitSize } from "@/type/store";
+import Animated, {
+  SharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle } from "react-native";
-import { GESTURE_Z_INDEX } from "@/constants/Workspace";
+import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
 import { useQueryClient } from "@tanstack/react-query";
-import { setCurrentComponent } from "@/hooks/useCurrentWorkspace";
+import { setCurrentComponent } from "@/hooks/useWorkspace";
+import { resizeComponentFitWorkspace } from "@/utils";
 
 const GestureTabComponent: React.FC<{
   component: Component;
   index: number;
-}> = ({ component, index }) => {
+  rootSize: FitSize<SharedValue<number>>;
+}> = ({ component, index, rootSize }) => {
   const queryClient = useQueryClient();
-  const tap = Gesture.Tap().onEnd(() => {
-    if (component.id) {
-      setCurrentComponent(component.id, queryClient);
-    }
-  }).runOnJS(true);
+  const tap = Gesture.Tap()
+    .onEnd(() => {
+      if (component.id) {
+        setCurrentComponent(component.id, queryClient);
+      }
+    })
+    .runOnJS(true);
 
-  const size: ViewStyle = React.useMemo(
+  const size = React.useMemo(
+    () => resizeComponentFitWorkspace(component, rootSize.scale),
+    [component]
+  );
+
+  const componentStyle: ViewStyle = React.useMemo(
     () => ({
-      width: component.size?.width || 1,
-      height: component.size?.height || 1,
+      width: size?.width || 1,
+      height: size?.height || 1,
       position: "absolute",
-      zIndex: GESTURE_Z_INDEX + index,
+      zIndex: GESTURE_TAP_Z_INDEX + index,
     }),
     [component]
   );
@@ -43,7 +55,7 @@ const GestureTabComponent: React.FC<{
 
   return (
     <GestureDetector gesture={tap}>
-      <Animated.View style={[size, style]} />
+      <Animated.View style={[componentStyle, style]} />
     </GestureDetector>
   );
 };

@@ -1,6 +1,7 @@
 import React from "react";
-import { Component } from "@/type/store";
+import { Component, FitSize } from "@/type/store";
 import Animated, {
+  SharedValue,
   clamp,
   useAnimatedStyle,
   useSharedValue,
@@ -11,7 +12,7 @@ import { Box } from "@/components/ui/box";
 import { ScaledSheet } from "react-native-size-matters";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { deleteComponentById } from "@/hooks/useCurrentWorkspace";
+import { deleteComponentById } from "@/hooks/useWorkspace";
 import { useQueryClient } from "@tanstack/react-query";
 import usePositionXY from "@/hooks/usePosition";
 import {
@@ -22,9 +23,17 @@ import {
 } from "@/constants/EditImage";
 import GestureRotateComponent from "./GestureRotateComponent";
 import GestureResizeComponent from "./GestureResizeComponent";
+import { resizeComponentFitWorkspace } from "@/utils";
 
-const TrashComponent: React.FC<{ component: Component }> = ({ component }) => {
+const TrashComponent: React.FC<{
+  component: Component;
+  rootSize: FitSize<SharedValue<number>>;
+}> = ({ component, rootSize }) => {
   const queryClient = useQueryClient();
+  const size = React.useMemo(
+    () => resizeComponentFitWorkspace(component, rootSize.scale),
+    [component]
+  );
   const deleteCurrentComponent = () => {
     deleteComponentById(component.id, queryClient);
   };
@@ -35,8 +44,8 @@ const TrashComponent: React.FC<{ component: Component }> = ({ component }) => {
     .runOnJS(true);
   const position: ViewStyle = {
     position: "absolute",
-    top: component.size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: component.size.width / 2 - BTN_OPTION_SIZE / 2,
+    top: size.height / 2 - BTN_OPTION_SIZE / 2,
+    left: size.width / 2 - BTN_OPTION_SIZE / 2,
     zIndex: GESTURE_Z_INDEX + 2,
   };
   return (
@@ -50,10 +59,11 @@ const TrashComponent: React.FC<{ component: Component }> = ({ component }) => {
   );
 };
 
-const GestureComponent: React.FC<{ component: Component; index: number }> = ({
-  component,
-  index,
-}) => {
+const GestureComponent: React.FC<{
+  component: Component;
+  index: number;
+  rootSize: FitSize<SharedValue<number>>;
+}> = ({ component, index, rootSize }) => {
   const prevScale = useSharedValue(component.scale.value);
   const prevTranslate = usePositionXY({
     x: component.translateX.value,
@@ -103,10 +113,15 @@ const GestureComponent: React.FC<{ component: Component; index: number }> = ({
 
   const race = Gesture.Exclusive(Gesture.Simultaneous(pinch, pan, rotation));
 
-  const size: ViewStyle = React.useMemo(
+  const size = React.useMemo(
+    () => resizeComponentFitWorkspace(component, rootSize.scale),
+    [component]
+  );
+
+  const componentSize: ViewStyle = React.useMemo(
     () => ({
-      width: component.size?.width || 1,
-      height: component.size?.height || 1,
+      width: size?.width || 1,
+      height: size?.height || 1,
       position: "absolute",
       zIndex: GESTURE_Z_INDEX + index,
     }),
@@ -137,17 +152,21 @@ const GestureComponent: React.FC<{ component: Component; index: number }> = ({
   }));
 
   return (
-    <Animated.View style={[size, translateStyle]}>
-      <Animated.View style={[size, contentStyle]}>
+    <Animated.View style={[componentSize, translateStyle]}>
+      <Animated.View style={[componentSize, contentStyle]}>
         <GestureDetector gesture={race}>
-          <Animated.View style={[size, scaleStyle]}>
+          <Animated.View style={[componentSize, scaleStyle]}>
             <Box className="flex-1 border-dotted border border-secondary-900" />
           </Animated.View>
         </GestureDetector>
-        <GestureResizeComponent component={component} />
+        <GestureResizeComponent rootSize={rootSize} component={component} />
       </Animated.View>
-      <GestureRotateComponent step={0.1} component={component} />
-      <TrashComponent component={component} />
+      <GestureRotateComponent
+        rootSize={rootSize}
+        step={0.1}
+        component={component}
+      />
+      <TrashComponent rootSize={rootSize} component={component} />
     </Animated.View>
   );
 };

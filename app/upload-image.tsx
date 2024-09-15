@@ -1,7 +1,7 @@
 import React from "react";
 import AppStyles from "@/assets/css";
 import { Image, ScrollView, useWindowDimensions } from "react-native";
-import { pickImage, first, calculateNewSizeImage, resizeImage } from "@/utils";
+import { pickImage, first, fitComponentSize, resizeImage } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -10,7 +10,10 @@ import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import uuid from "react-native-uuid";
 import { makeMutable } from "react-native-reanimated";
-import useCurrentWorkspace, { pushComponentToCurrentWorkspace, pushComponentToDraftWorkspace } from "@/hooks/useCurrentWorkspace";
+import useCurrentWorkspace, {
+  pushComponentToCurrentWorkspace,
+  pushComponentToDraftWorkspace,
+} from "@/hooks/useWorkspace";
 const UploadImage = () => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
@@ -25,21 +28,23 @@ const UploadImage = () => {
   const uploadImage = async () => {
     const imageUploaded = await pickImage();
     if (first(imageUploaded?.assets || [])?.base64) {
-      const imageSize = calculateNewSizeImage({
+      const imageSize = fitComponentSize({
         imageHeight: first(imageUploaded?.assets || [])?.height || 1,
         imageWidth: first(imageUploaded?.assets || [])?.width || 1,
         widthDimensions: workspace?.size?.height || 1,
         heightDimensions: workspace?.size?.height || 1,
       });
       setImageSize(imageSize);
-      const imageResized = await resizeImage({
-        base64: `data:image/jpeg;base64,${
-          first(imageUploaded?.assets || [])?.base64
-        }`,
-        width: imageSize.width,
-        height: imageSize.height,
-      });
-      setImage(`data:image/jpeg;base64,${imageResized}`);
+      // const imageResized = await resizeImage({
+      //   base64: `data:image/jpeg;base64,${
+      //     first(imageUploaded?.assets || [])?.base64
+      //   }`,
+      //   width: imageSize.width,
+      //   height: imageSize.height,
+      // });
+      setImage(
+        `data:image/jpeg;base64,${first(imageUploaded?.assets || [])?.base64}`
+      );
     }
   };
 

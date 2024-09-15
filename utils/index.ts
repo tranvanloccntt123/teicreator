@@ -1,8 +1,16 @@
 import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync } from "expo-image-manipulator";
-import { Component, Vector, WorkspaceBase, WorkspaceSize } from "@/type/store";
+import {
+  Component,
+  FitSize,
+  Vector,
+  Workspace,
+  WorkspaceBase,
+  WorkspaceSize,
+} from "@/type/store";
 import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
+import { SharedValue } from "react-native-reanimated";
 
 export const pickImage =
   async (): Promise<ImagePicker.ImagePickerResult | null> => {
@@ -20,7 +28,7 @@ export const pickImage =
     return null;
   };
 
-export const calculateNewSizeImage = ({
+export const fitComponentSize = ({
   imageHeight,
   imageWidth,
   widthDimensions,
@@ -30,7 +38,15 @@ export const calculateNewSizeImage = ({
   imageHeight: number;
   widthDimensions: number;
   heightDimensions: number;
-}) => {
+}): FitSize => {
+  if (imageWidth <= widthDimensions && imageHeight <= heightDimensions) {
+    return {
+      width: imageWidth,
+      height: imageHeight,
+      scale: 1,
+    };
+  }
+
   const imageSize = (imageWidth || 1) / (imageHeight || 1);
   /* 
     size = width / height
@@ -39,15 +55,20 @@ export const calculateNewSizeImage = ({
   */
 
   let width = widthDimensions;
+
   const tmpHeight = width / imageSize;
   if (tmpHeight > heightDimensions) {
     width = heightDimensions * imageSize;
   }
 
   const height = width / imageSize;
+
+  const scale = width / imageWidth;
+
   return {
     width,
     height,
+    scale,
   };
 };
 
@@ -201,4 +222,14 @@ export const vectorFromRadians = (length: number, radians: number): Vector => {
   const y = length * Math.sin(radians);
 
   return { x, y };
+};
+
+export const resizeComponentFitWorkspace = (
+  component: Component,
+  workspaceScale: SharedValue<number>
+) => {
+  return {
+    width: component.size.width * workspaceScale.value,
+    height: component.size.height * workspaceScale.value,
+  };
 };

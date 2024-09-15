@@ -1,5 +1,5 @@
 import { ImageDataSource } from "@/type/store";
-import { calculateNewSizeImage } from "@/utils";
+import { fitComponentSize } from "@/utils";
 import { DataSourceParam, useImage } from "@shopify/react-native-skia";
 import React from "react";
 
@@ -20,7 +20,7 @@ const useScaleImage = ({
   */
 
   const { width, height } = React.useMemo(() => {
-    return calculateNewSizeImage({
+    return fitComponentSize({
       imageHeight: image?.height() || 1,
       imageWidth: image?.width() || 1,
       widthDimensions,

@@ -2,7 +2,7 @@ import { Box } from "@/components/ui/box";
 import { HEADER_Z_INDEX } from "@/constants/Workspace";
 import useCurrentWorkspace, {
   deleteComponentById,
-} from "@/hooks/useCurrentWorkspace";
+} from "@/hooks/useWorkspace";
 import React from "react";
 import Animated from "react-native-reanimated";
 import { ScaledSheet, scale } from "react-native-size-matters";

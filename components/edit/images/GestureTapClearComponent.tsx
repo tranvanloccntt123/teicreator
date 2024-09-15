@@ -1,5 +1,5 @@
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
-import { clearCurrentComponent } from "@/hooks/useCurrentWorkspace";
+import { clearCurrentComponent } from "@/hooks/useWorkspace";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { StyleProp, View } from "react-native";

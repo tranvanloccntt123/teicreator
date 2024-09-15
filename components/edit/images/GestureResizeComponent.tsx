@@ -1,6 +1,7 @@
 import React from "react";
-import { Component } from "@/type/store";
+import { Component, FitSize } from "@/type/store";
 import Animated, {
+  SharedValue,
   clamp,
   useAnimatedStyle,
   useDerivedValue,
@@ -15,8 +16,8 @@ import usePositionXY from "@/hooks/usePosition";
 import {
   distanceBetween2Vector,
   radToDegree,
+  resizeComponentFitWorkspace,
   resizePosition,
-  vectorOnDiagonalLine,
 } from "@/utils";
 import {
   BTN_OPTION_ICON_SIZE,
@@ -27,21 +28,38 @@ import {
 import { log } from "@/hooks/useDev";
 import { ScaledSheet } from "react-native-size-matters";
 
-const GestureResizeComponent: React.FC<{ component: Component }> = ({
-  component,
-}) => {
+const GestureResizeComponent: React.FC<{
+  component: Component;
+  rootSize: FitSize<SharedValue<number>>;
+}> = ({ component, rootSize }) => {
+  const size = React.useMemo(
+    () => resizeComponentFitWorkspace(component, rootSize.scale),
+    [component]
+  );
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
   const prevScale = useSharedValue(component.scale.value);
   const positionXY = useDerivedValue(() => {
     return {
-      x: resizePosition(component).x,
-      y: resizePosition(component).y,
+      x: resizePosition({
+        ...component,
+        size: {
+          width: size.width,
+          height: size.height,
+        },
+      }).x,
+      y: resizePosition({
+        ...component,
+        size: {
+          width: size.width,
+          height: size.height,
+        },
+      }).y,
     };
   });
   const position: ViewStyle = {
     position: "absolute",
-    top: component.size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: component.size.width / 2 - BTN_OPTION_SIZE / 2,
+    top: size.height / 2 - BTN_OPTION_SIZE / 2,
+    left: size.width / 2 - BTN_OPTION_SIZE / 2,
     zIndex: GESTURE_Z_INDEX + 2,
   };
   const pan = Gesture.Pan()
@@ -61,8 +79,7 @@ const GestureResizeComponent: React.FC<{ component: Component }> = ({
         { x: prevTranslate.x.value, y: prevTranslate.y.value }
       );
       const distancePercent =
-        (distance / component.size.width + distance / component.size.height) /
-        2;
+        (distance / size.width + distance / size.height) / 2;
       const oldDistance = distanceBetween2Vector(
         { x: 0, y: 0 },
         { x: prevTranslate.x.value, y: prevTranslate.y.value }

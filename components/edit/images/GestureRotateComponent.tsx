@@ -1,6 +1,7 @@
 import React from "react";
-import { Component } from "@/type/store";
+import { Component, FitSize } from "@/type/store";
 import Animated, {
+  SharedValue,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
@@ -12,16 +13,35 @@ import { Box } from "@/components/ui/box";
 import Feather from "@expo/vector-icons/Feather";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
 import usePositionXY from "@/hooks/usePosition";
-import { componentSize, vectorFromRadians, vectorOnCircleLine } from "@/utils";
+import {
+  componentSize,
+  resizeComponentFitWorkspace,
+  vectorFromRadians,
+  vectorOnCircleLine,
+} from "@/utils";
 import { BTN_OPTION_ICON_SIZE, BTN_OPTION_SIZE } from "@/constants/EditImage";
 import { ScaledSheet } from "react-native-size-matters";
 
 const GestureRotateComponent: React.FC<{
   component: Component;
   step: number;
-}> = ({ component, step }) => {
+  rootSize: FitSize<SharedValue<number>>;
+}> = ({ component, step, rootSize }) => {
+  const size = React.useMemo(
+    () => resizeComponentFitWorkspace(component, rootSize.scale),
+    [component]
+  );
   const R = useDerivedValue(
-    () => componentSize(component).width / 2 + BTN_OPTION_SIZE / 2
+    () =>
+      componentSize({
+        ...component,
+        size: {
+          width: size.width,
+          height: size.height,
+        },
+      }).width /
+        2 +
+      BTN_OPTION_SIZE / 2
   );
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
   const prevRotate = useSharedValue(component.rotate.value);
@@ -31,8 +51,8 @@ const GestureRotateComponent: React.FC<{
 
   const position: ViewStyle = {
     position: "absolute",
-    top: component.size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: component.size.width / 2 - BTN_OPTION_SIZE / 2,
+    top: size.height / 2 - BTN_OPTION_SIZE / 2,
+    left: size.width / 2 - BTN_OPTION_SIZE / 2,
     zIndex: GESTURE_Z_INDEX + 1,
   };
   const tap = Gesture.Tap()

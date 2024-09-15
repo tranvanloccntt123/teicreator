@@ -1,13 +1,15 @@
 import React from "react";
 import { Group, Image, Transforms3d } from "@shopify/react-native-skia";
 import { Skia } from "@shopify/react-native-skia";
-import { Component } from "@/type/store";
+import { Component, FitSize } from "@/type/store";
 import { ImageURISource } from "react-native";
-import { useDerivedValue } from "react-native-reanimated";
+import { SharedValue, useDerivedValue } from "react-native-reanimated";
+import { resizeComponentFitWorkspace } from "@/utils";
 
-const ImagePreviewFromBase64: React.FC<{ component: Component }> = ({
-  component,
-}) => {
+const ImagePreviewFromBase64: React.FC<{
+  component: Component;
+  rootSize: FitSize<SharedValue<number>>;
+}> = ({ component, rootSize }) => {
   const base64 = React.useMemo(
     () =>
       (component.data as ImageURISource).uri?.replace(
@@ -18,6 +20,10 @@ const ImagePreviewFromBase64: React.FC<{ component: Component }> = ({
   );
   const data = Skia.Data.fromBase64(base64);
   const image = Skia.Image.MakeImageFromEncoded(data);
+  const size = React.useMemo(
+    () => resizeComponentFitWorkspace(component, rootSize.scale),
+    [component]
+  );
   const contentTransform = useDerivedValue(
     (): Transforms3d => [
       { rotate: component.rotate.value },
@@ -32,24 +38,23 @@ const ImagePreviewFromBase64: React.FC<{ component: Component }> = ({
     ],
     [component.translateX, component.translateY]
   );
-  const rotateOrigin = useDerivedValue(
-    () => ({
-      x: component.size.width / 2,
-      y: component.size.height / 2,
-    }),
-    [component.translateX, component.translateY]
-  );
 
   return (
     <Group transform={translateTransform}>
-      <Group origin={rotateOrigin} transform={contentTransform}>
+      <Group
+        origin={{
+          x: size.width / 2,
+          y: size.height / 2,
+        }}
+        transform={contentTransform}
+      >
         <Image
           image={image}
           fit="contain"
           x={0}
           y={0}
-          width={image?.width() || 1}
-          height={image?.height() || 1}
+          width={size.width || 1}
+          height={size.height || 1}
         />
       </Group>
     </Group>

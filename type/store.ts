@@ -25,9 +25,9 @@ export type Component<TransformType = SharedValue<number>> = {
   size: WorkspaceSize;
 };
 
-export type WorkspaceSize = {
-  width: number;
-  height: number;
+export type WorkspaceSize<ValueType = number> = {
+  width: ValueType;
+  height: ValueType;
 };
 
 export type WorkspaceBase = {
@@ -35,9 +35,14 @@ export type WorkspaceBase = {
   size: WorkspaceSize;
 };
 
+export type FitSize<ValueType = number> = WorkspaceSize<ValueType> & {
+  scale: ValueType;
+};
+
 export type Workspace = WorkspaceBase & {
   components?: Array<Component>;
   componentEditingId?: string;
+  viewResize: FitSize<SharedValue<number>>;
 };
 
 export type DraftWorkspace = WorkspaceBase & {

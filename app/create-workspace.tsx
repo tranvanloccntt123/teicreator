@@ -9,21 +9,29 @@ import {
   FormControlLabelText,
 } from "@/components/ui/form-control";
 import { Heading } from "@/components/ui/heading";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { Input, InputField } from "@/components/ui/input";
 import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { formValidate } from "@/utils/validator";
 import { configCreateWorkspace } from "@/constants/Validator";
 import { useQueryClient } from "@tanstack/react-query";
-import { createNewWorspace } from "@/utils";
+import { createNewWorspace, fitComponentSize } from "@/utils";
 import { router } from "expo-router";
-import { pushWorkspace, setCurrentWorkspace, setDraftWorkspace } from "@/hooks/useCurrentWorkspace";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import {
+  pushWorkspace,
+  setCurrentWorkspace,
+  setDraftWorkspace,
+} from "@/hooks/useWorkspace";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { HStack } from "@/components/ui/hstack";
+import { makeMutable } from "react-native-reanimated";
+import { scale } from "react-native-size-matters";
 
 const CreateWorkspace = () => {
   const queryClient = useQueryClient();
+  const { width: widthDimensions, height: heightDimensions } =
+    useWindowDimensions();
   const [width, setWidth] = React.useState<string>("");
   const [height, setHeight] = React.useState<string>("");
   const [error, setError] = React.useState<{ width?: string; height?: string }>(
@@ -63,9 +71,23 @@ const CreateWorkspace = () => {
             height: Number(height),
           },
         });
-        setCurrentWorkspace(newWorkspace, queryClient);
+        const fitRootView = fitComponentSize({
+          imageHeight: newWorkspace.size.height,
+          imageWidth: newWorkspace.size.width,
+          widthDimensions,
+          heightDimensions,
+        });
+        const initWorkspaceView = {
+          ...newWorkspace,
+          viewResize: {
+            width: makeMutable(fitRootView.width),
+            height: makeMutable(fitRootView.height),
+            scale: makeMutable(fitRootView.scale)
+          },
+        };
+        setCurrentWorkspace(initWorkspaceView, queryClient);
         setDraftWorkspace(newWorkspace, queryClient);
-        pushWorkspace(newWorkspace, queryClient);
+        pushWorkspace(initWorkspaceView, queryClient);
         router.navigate("/workspace");
       }
     },
