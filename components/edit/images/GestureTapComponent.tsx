@@ -9,14 +9,16 @@ import { ViewStyle } from "react-native";
 import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import { setCurrentComponent } from "@/hooks/useWorkspace";
-import { resizeComponentFitWorkspace } from "@/utils";
+import { resizeComponentFitWorkspace, rootTranslate } from "@/utils";
+import { useWindowDimensions } from "react-native";
 
-const GestureTabComponent: React.FC<{
+const GestureTapComponent: React.FC<{
   component: Component;
   index: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {
   const queryClient = useQueryClient();
+  const { width, height } = useWindowDimensions();
   const tap = Gesture.Tap()
     .onEnd(() => {
       if (component.id) {
@@ -42,8 +44,24 @@ const GestureTabComponent: React.FC<{
 
   const style = useAnimatedStyle(() => ({
     transform: [
-      { translateX: component.translateX.value },
-      { translateY: component.translateY.value },
+      {
+        translateX:
+          rootTranslate({
+            width,
+            height,
+            viewHeight: rootSize.height.value,
+            viewWidth: rootSize.width.value,
+          }).x + component.translateX.value,
+      },
+      {
+        translateY:
+          rootTranslate({
+            width,
+            height,
+            viewHeight: rootSize.height.value,
+            viewWidth: rootSize.width.value,
+          }).y + component.translateY.value,
+      },
       {
         rotate: `${component.rotate.value}rad`,
       },
@@ -60,4 +78,4 @@ const GestureTabComponent: React.FC<{
   );
 };
 
-export default GestureTabComponent;
+export default GestureTapComponent;

@@ -26,7 +26,7 @@ import {
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { HStack } from "@/components/ui/hstack";
 import { makeMutable } from "react-native-reanimated";
-import { scale } from "react-native-size-matters";
+import { scale, verticalScale } from "react-native-size-matters";
 
 const CreateWorkspace = () => {
   const queryClient = useQueryClient();
@@ -74,15 +74,15 @@ const CreateWorkspace = () => {
         const fitRootView = fitComponentSize({
           imageHeight: newWorkspace.size.height,
           imageWidth: newWorkspace.size.width,
-          widthDimensions,
-          heightDimensions,
+          widthDimensions: widthDimensions - scale(15),
+          heightDimensions: heightDimensions - verticalScale(50),
         });
         const initWorkspaceView = {
           ...newWorkspace,
           viewResize: {
             width: makeMutable(fitRootView.width),
             height: makeMutable(fitRootView.height),
-            scale: makeMutable(fitRootView.scale)
+            scale: makeMutable(fitRootView.scale),
           },
         };
         setCurrentWorkspace(initWorkspaceView, queryClient);

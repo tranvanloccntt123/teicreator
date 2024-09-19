@@ -4,12 +4,15 @@ import { router } from "expo-router";
 import ImagePreviewFromBase64 from "./ImagePreview";
 import { useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
-import { scale } from "react-native-size-matters";
+import { scale, verticalScale } from "react-native-size-matters";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
 import RoundRootComponent from "./RoundRootComponent";
+import { fitComponentSize } from "@/utils";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();
+
   const { data: workspace } = useCurrentWorkspace();
+
   React.useEffect(() => {
     if (!workspace) {
       setTimeout(() => {
@@ -17,6 +20,19 @@ const WorkspaceView: React.FC<object> = () => {
       }, 3000);
     }
   }, [workspace]);
+
+  React.useEffect(() => {
+    const fitRootView = fitComponentSize({
+      imageHeight: workspace.size.height,
+      imageWidth: workspace.size.width,
+      widthDimensions: width - scale(15),
+      heightDimensions: height - verticalScale(50),
+    });
+    workspace.viewResize.width.value = fitRootView.width;
+    workspace.viewResize.height.value = fitRootView.height;
+    workspace.viewResize.scale.value = fitRootView.scale;
+  }, [workspace, width, height]);
+
   return (
     <Box
       style={{

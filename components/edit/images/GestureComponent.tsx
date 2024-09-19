@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { Platform, ViewStyle } from "react-native";
+import { Platform, ViewStyle, useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
 import { ScaledSheet } from "react-native-size-matters";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
@@ -23,7 +23,7 @@ import {
 } from "@/constants/EditImage";
 import GestureRotateComponent from "./GestureRotateComponent";
 import GestureResizeComponent from "./GestureResizeComponent";
-import { resizeComponentFitWorkspace } from "@/utils";
+import { resizeComponentFitWorkspace, rootTranslate } from "@/utils";
 
 const TrashComponent: React.FC<{
   component: Component;
@@ -64,6 +64,7 @@ const GestureComponent: React.FC<{
   index: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {
+  const { width, height } = useWindowDimensions();
   const prevScale = useSharedValue(component.scale.value);
   const prevTranslate = usePositionXY({
     x: component.translateX.value,
@@ -130,8 +131,24 @@ const GestureComponent: React.FC<{
 
   const translateStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: component.translateX.value },
-      { translateY: component.translateY.value },
+      {
+        translateX:
+          rootTranslate({
+            width,
+            height,
+            viewHeight: rootSize.height.value,
+            viewWidth: rootSize.width.value,
+          }).x + component.translateX.value,
+      },
+      {
+        translateY:
+          rootTranslate({
+            width,
+            height,
+            viewHeight: rootSize.height.value,
+            viewWidth: rootSize.width.value,
+          }).y + component.translateY.value,
+      },
     ] as never,
   }));
 

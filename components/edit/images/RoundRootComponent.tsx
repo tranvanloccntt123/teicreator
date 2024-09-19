@@ -3,6 +3,7 @@ import { Group, RoundedRect, size } from "@shopify/react-native-skia";
 import { useWindowDimensions } from "react-native";
 import { Workspace } from "@/type/store";
 import { scale } from "react-native-size-matters";
+import useCurrentWorkspace from "@/hooks/useWorkspace";
 
 const RoundRootComponent: React.FC<{ workspace: Workspace }> = ({
   workspace,

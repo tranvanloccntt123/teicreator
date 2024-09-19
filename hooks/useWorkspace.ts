@@ -88,7 +88,7 @@ export const clearCurrentComponent = (queryClient: QueryClient) => {
   );
 };
 
-export const deleteComponentById = (id: string, queryClient) => {
+export const deleteComponentById = (id: string, queryClient: QueryClient) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => ({
@@ -101,6 +101,37 @@ export const deleteComponentById = (id: string, queryClient) => {
           ? undefined
           : oldData.componentEditingId,
     })
+  );
+};
+
+export const updateCurrentWorkspace = (
+  id: string,
+  params: { blur?: number; lightUpPercent?: number },
+  queryClient: QueryClient
+) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = oldData?.components || [];
+      for (const index in components) {
+        if (components[index].id === id) {
+          components[index].blur.value =
+            params.blur !== undefined
+              ? params.blur
+              : components[index].blur.value;
+          components[index].lightUpPercent.value =
+            params.lightUpPercent !== undefined
+              ? params.lightUpPercent
+              : components[index].lightUpPercent.value;
+          break;
+        }
+      }
+      return {
+        ...oldData,
+        components,
+        componentEditingId: id,
+      };
+    }
   );
 };
 

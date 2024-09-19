@@ -58,6 +58,7 @@ const UploadImage = () => {
       scale: makeMutable(1),
       rotate: makeMutable(0),
       blur: makeMutable(0),
+      lightUpPercent: makeMutable(0),
       size: imageSize,
       isBase64: true,
     };
@@ -71,6 +72,7 @@ const UploadImage = () => {
       blur: 0,
       size: imageSize,
       isBase64: true,
+      lightUpPercent: 0,
     };
     pushComponentToCurrentWorkspace(newComponent, queryClient);
     pushComponentToDraftWorkspace(newDraftComponent, queryClient);

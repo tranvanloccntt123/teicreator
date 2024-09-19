@@ -1,4 +1,4 @@
-import { GESTURE_Z_INDEX } from "@/constants/Workspace";
+import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
 import { clearCurrentComponent } from "@/hooks/useWorkspace";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
@@ -18,7 +18,7 @@ const GestureTapClearComponent = () => {
       right: 0,
       bottom: 0,
       left: 0,
-      zIndex: GESTURE_Z_INDEX - 1,
+      zIndex: GESTURE_TAP_Z_INDEX - 1,
     }),
     []
   );

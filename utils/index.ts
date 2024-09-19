@@ -11,6 +11,8 @@ import {
 import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
 import { SharedValue } from "react-native-reanimated";
+import { ComponentState } from "react";
+import { UP_LIGHT } from "@/constants/Workspace";
 
 export const pickImage =
   async (): Promise<ImagePicker.ImagePickerResult | null> => {
@@ -233,3 +235,33 @@ export const resizeComponentFitWorkspace = (
     height: component.size.height * workspaceScale.value,
   };
 };
+
+export const findCurrentComponent = (
+  components: Component[],
+  componentId: string
+) => {
+  return components.find((component) => component.id === componentId);
+};
+
+export const lightUp = (matrixFilter: Array<number>, percent: number) => {
+  let _matrixFilter = matrixFilter.concat();
+  UP_LIGHT.forEach((color, index) => {
+    _matrixFilter[index] += color * percent;
+  });
+  return _matrixFilter;
+};
+
+export const rootTranslate = ({
+  width,
+  height,
+  viewWidth,
+  viewHeight,
+}: {
+  width: number;
+  height: number;
+  viewWidth: number;
+  viewHeight: number;
+}) => ({
+  x: (width - viewWidth) / 2,
+  y: (height - viewHeight) / 2,
+});

@@ -16,7 +16,7 @@ const WorkspaceHeaderView = () => {
   const { data: workspace } = useCurrentWorkspace();
 
   const deleteCurrentComponent = () => {
-    deleteComponentById(workspace.componentEditingId, queryClient);
+    deleteComponentById(workspace?.componentEditingId, queryClient);
   };
 
   return (

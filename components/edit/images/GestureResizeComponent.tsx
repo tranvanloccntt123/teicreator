@@ -15,7 +15,6 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import usePositionXY from "@/hooks/usePosition";
 import {
   distanceBetween2Vector,
-  radToDegree,
   resizeComponentFitWorkspace,
   resizePosition,
 } from "@/utils";
@@ -25,7 +24,6 @@ import {
   MAX_SCALE,
   MIN_SCALE,
 } from "@/constants/EditImage";
-import { log } from "@/hooks/useDev";
 import { ScaledSheet } from "react-native-size-matters";
 
 const GestureResizeComponent: React.FC<{
@@ -94,7 +92,6 @@ const GestureResizeComponent: React.FC<{
       if (scaling >= MIN_SCALE || scaling <= MAX_SCALE) {
         component.scale.value = clamp(scaling, MIN_SCALE, MAX_SCALE);
       }
-      log(radToDegree(component.rotate.value));
     })
     .runOnJS(true);
 

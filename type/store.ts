@@ -23,6 +23,7 @@ export type Component<TransformType = SharedValue<number>> = {
   rotate: TransformType;
   blur: TransformType;
   size: WorkspaceSize;
+  lightUpPercent: TransformType;
 };
 
 export type WorkspaceSize<ValueType = number> = {
