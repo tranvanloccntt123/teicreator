@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize } from "@/type/store";
+import { Component, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
@@ -9,7 +9,11 @@ import { ViewStyle } from "react-native";
 import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import { setCurrentComponent } from "@/hooks/useWorkspace";
-import { resizeComponentFitWorkspace, rootTranslate } from "@/utils";
+import {
+  getComponentTransform,
+  resizeComponentFitWorkspace,
+  rootTranslate,
+} from "@/utils";
 import { useWindowDimensions } from "react-native";
 
 const GestureTapComponent: React.FC<{
@@ -51,7 +55,7 @@ const GestureTapComponent: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).x + component.translateX.value,
+          }).x + getComponentTransform(component, MatrixIndex.TRANSLATE_X),
       },
       {
         translateY:
@@ -60,13 +64,13 @@ const GestureTapComponent: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).y + component.translateY.value,
+          }).y + getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
       },
       {
-        rotate: `${component.rotate.value}rad`,
+        rotate: `${getComponentTransform(component, MatrixIndex.ROTATE)}rad`,
       },
       {
-        scale: component.scale.value,
+        scale: getComponentTransform(component, MatrixIndex.SCALE),
       },
     ] as never,
   }));

@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize } from "@/type/store";
+import { Component, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   clamp,
@@ -23,7 +23,12 @@ import {
 } from "@/constants/EditImage";
 import GestureRotateComponent from "./GestureRotateComponent";
 import GestureResizeComponent from "./GestureResizeComponent";
-import { resizeComponentFitWorkspace, rootTranslate } from "@/utils";
+import {
+  getComponentTransform,
+  resizeComponentFitWorkspace,
+  rootTranslate,
+  updateComponentTransform,
+} from "@/utils";
 
 const TrashComponent: React.FC<{
   component: Component;
@@ -65,22 +70,26 @@ const GestureComponent: React.FC<{
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {
   const { width, height } = useWindowDimensions();
-  const prevScale = useSharedValue(component.scale.value);
+  const prevScale = useSharedValue(
+    getComponentTransform(component, MatrixIndex.SCALE)
+  );
   const prevTranslate = usePositionXY({
-    x: component.translateX.value,
-    y: component.translateY.value,
+    x: getComponentTransform(component, MatrixIndex.TRANSLATE_X),
+    y: getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
   });
-  const prevRotate = useSharedValue(component.rotate.value);
+  const prevRotate = useSharedValue(
+    getComponentTransform(component, MatrixIndex.ROTATE)
+  );
 
   const pinch = Gesture.Pinch()
     .onStart(() => {
-      prevScale.value = component.scale.value;
+      prevScale.value = getComponentTransform(component, MatrixIndex.SCALE);
     })
     .onUpdate((event) => {
-      component.scale.value = clamp(
-        prevScale.value * event.scale,
-        MIN_SCALE,
-        MAX_SCALE
+      updateComponentTransform(
+        component,
+        MatrixIndex.SCALE,
+        clamp(prevScale.value * event.scale, MIN_SCALE, MAX_SCALE)
       );
     })
     .runOnJS(true);
@@ -88,28 +97,52 @@ const GestureComponent: React.FC<{
   const pan = Gesture.Pan()
     .onStart(() => {
       if (Platform.OS !== "web") {
-        prevTranslate.x.value = component.translateX.value;
-        prevTranslate.y.value = component.translateY.value;
+        prevTranslate.x.value = getComponentTransform(
+          component,
+          MatrixIndex.TRANSLATE_X
+        );
+        prevTranslate.y.value = getComponentTransform(
+          component,
+          MatrixIndex.TRANSLATE_Y
+        );
       }
     })
     .onBegin(() => {
       if (Platform.OS === "web") {
-        prevTranslate.x.value = component.translateX.value;
-        prevTranslate.y.value = component.translateY.value;
+        prevTranslate.x.value = getComponentTransform(
+          component,
+          MatrixIndex.TRANSLATE_X
+        );
+        prevTranslate.y.value = getComponentTransform(
+          component,
+          MatrixIndex.TRANSLATE_Y
+        );
       }
     })
     .onUpdate((event) => {
-      component.translateX.value = prevTranslate.x.value + event.translationX;
-      component.translateY.value = prevTranslate.y.value + event.translationY;
+      updateComponentTransform(
+        component,
+        MatrixIndex.TRANSLATE_X,
+        prevTranslate.x.value + event.translationX
+      );
+      updateComponentTransform(
+        component,
+        MatrixIndex.TRANSLATE_Y,
+        prevTranslate.y.value + event.translationY
+      );
     })
     .runOnJS(true);
 
   const rotation = Gesture.Rotation()
     .onStart(() => {
-      prevRotate.value = component.rotate.value;
+      prevRotate.value = getComponentTransform(component, MatrixIndex.ROTATE);
     })
     .onUpdate((event) => {
-      component.rotate.value = prevRotate.value + event.rotation;
+      updateComponentTransform(
+        component,
+        MatrixIndex.ROTATE,
+        prevRotate.value + event.rotation
+      );
     });
 
   const race = Gesture.Exclusive(Gesture.Simultaneous(pinch, pan, rotation));
@@ -138,7 +171,7 @@ const GestureComponent: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).x + component.translateX.value,
+          }).x + getComponentTransform(component, MatrixIndex.TRANSLATE_X),
       },
       {
         translateY:
@@ -147,7 +180,7 @@ const GestureComponent: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).y + component.translateY.value,
+          }).y + getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
       },
     ] as never,
   }));
@@ -155,7 +188,7 @@ const GestureComponent: React.FC<{
   const contentStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        rotate: `${component.rotate.value}rad`,
+        rotate: `${getComponentTransform(component, MatrixIndex.ROTATE)}rad`,
       },
     ] as never,
   }));
@@ -163,7 +196,7 @@ const GestureComponent: React.FC<{
   const scaleStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scale: component.scale.value,
+        scale: getComponentTransform(component, MatrixIndex.SCALE),
       },
     ],
   }));

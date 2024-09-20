@@ -3,6 +3,7 @@ import { manipulateAsync } from "expo-image-manipulator";
 import {
   Component,
   FitSize,
+  MatrixIndex,
   Vector,
   Workspace,
   WorkspaceBase,
@@ -12,7 +13,7 @@ import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
 import { SharedValue } from "react-native-reanimated";
 import { ComponentState } from "react";
-import { UP_LIGHT } from "@/constants/Workspace";
+import { TEMPERATURE_UP } from "@/constants/Workspace";
 
 export const pickImage =
   async (): Promise<ImagePicker.ImagePickerResult | null> => {
@@ -205,8 +206,12 @@ export const vectorOnDiagonalLine = (
 
 export const componentSize = (component: Component) => {
   return {
-    width: component.size.width * component.scale.value,
-    height: component.size.height * component.scale.value,
+    width:
+      component.size.width *
+      getComponentTransform(component, MatrixIndex.SCALE),
+    height:
+      component.size.height *
+      getComponentTransform(component, MatrixIndex.SCALE),
   };
 };
 
@@ -243,9 +248,9 @@ export const findCurrentComponent = (
   return components.find((component) => component.id === componentId);
 };
 
-export const lightUp = (matrixFilter: Array<number>, percent: number) => {
+export const temperatureUp = (matrixFilter: Array<number>, percent: number) => {
   let _matrixFilter = matrixFilter.concat();
-  UP_LIGHT.forEach((color, index) => {
+  TEMPERATURE_UP.forEach((color, index) => {
     _matrixFilter[index] += color * percent;
   });
   return _matrixFilter;
@@ -265,3 +270,16 @@ export const rootTranslate = ({
   x: (width - viewWidth) / 2,
   y: (height - viewHeight) / 2,
 });
+
+export const getComponentTransform = (
+  component: Component,
+  transform: MatrixIndex
+) => component.matrix[transform].value;
+
+export const updateComponentTransform = (
+  component: Component,
+  transform: MatrixIndex,
+  value: number
+) => {
+  component.matrix[transform].value = value;
+};

@@ -4,6 +4,7 @@ import { useWindowDimensions } from "react-native";
 import { Workspace } from "@/type/store";
 import { scale } from "react-native-size-matters";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
+import { useDerivedValue } from "react-native-reanimated";
 
 const RoundRootComponent: React.FC<{ workspace: Workspace }> = ({
   workspace,
@@ -18,11 +19,17 @@ const RoundRootComponent: React.FC<{ workspace: Workspace }> = ({
     [workspace.size.width, workspace.size.height]
   );
 
+  const x = useDerivedValue(
+    () => (width - workspace.viewResize.width.value) / 2
+  );
+
+  const y = useDerivedValue(() => (height - workspace.viewResize.height.value) / 2);
+
   return (
     <Group color="white" origin={rotateOrigin}>
       <RoundedRect
-        x={(width - workspace.viewResize.width.value) / 2}
-        y={(height - workspace.viewResize.height.value) / 2}
+        x={x}
+        y={y}
         r={scale(5)}
         width={workspace.viewResize.width}
         height={workspace.viewResize.height}

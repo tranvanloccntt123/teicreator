@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize } from "@/type/store";
+import { Component, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   clamp,
@@ -15,8 +15,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import usePositionXY from "@/hooks/usePosition";
 import {
   distanceBetween2Vector,
+  getComponentTransform,
   resizeComponentFitWorkspace,
   resizePosition,
+  updateComponentTransform,
 } from "@/utils";
 import {
   BTN_OPTION_ICON_SIZE,
@@ -35,7 +37,9 @@ const GestureResizeComponent: React.FC<{
     [component]
   );
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
-  const prevScale = useSharedValue(component.scale.value);
+  const prevScale = useSharedValue(
+    getComponentTransform(component, MatrixIndex.SCALE)
+  );
   const positionXY = useDerivedValue(() => {
     return {
       x: resizePosition({
@@ -64,7 +68,7 @@ const GestureResizeComponent: React.FC<{
     .onBegin(() => {
       prevTranslate.x.value = positionXY.value.x;
       prevTranslate.y.value = positionXY.value.y;
-      prevScale.value = component.scale.value;
+      prevScale.value = getComponentTransform(component, MatrixIndex.SCALE);
     })
     .onUpdate((event) => {
       //TODO:
@@ -90,7 +94,11 @@ const GestureResizeComponent: React.FC<{
       const scaling =
         prevScale.value - (!isScaleLarge ? 1 : -1) * distancePercent;
       if (scaling >= MIN_SCALE || scaling <= MAX_SCALE) {
-        component.scale.value = clamp(scaling, MIN_SCALE, MAX_SCALE);
+        updateComponentTransform(
+          component,
+          MatrixIndex.SCALE,
+          clamp(scaling, MIN_SCALE, MAX_SCALE)
+        );
       }
     })
     .runOnJS(true);

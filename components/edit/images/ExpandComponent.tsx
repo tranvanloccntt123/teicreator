@@ -6,11 +6,11 @@ import {
   EXPAND_CLOSE_POSITION,
   EXPAND_COMPONENT_Z_INDEX,
   EXPAND_OPEN_POSITION,
-  LIGHT_UP_STEP,
+  TEMPERATURE_UP_STEP,
   MAX_BLUR,
-  MAX_LIGHT_UP,
+  MAX_TEMPERATURE_UP,
   MIN_BLUR,
-  MIN_LIGHT_UP,
+  MIN_TEMPERATURE_UP,
 } from "@/constants/Workspace";
 import Animated, {
   interpolate,
@@ -26,20 +26,21 @@ import useCurrentWorkspace, {
   updateCurrentWorkspace,
 } from "@/hooks/useWorkspace";
 import { Slider } from "@miblanchard/react-native-slider";
-import { findCurrentComponent } from "@/utils";
+import { findCurrentComponent, getComponentTransform } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Center } from "@/components/ui/center";
 import { Button, ButtonGroup, ButtonText } from "@/components/ui/button";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { MatrixIndex } from "@/type/store";
 
 const ExpandComponent = () => {
   const queryClient = useQueryClient();
 
   const { data: workspace } = useCurrentWorkspace();
 
-  const currentComponent = React.useMemo(
+  const component = React.useMemo(
     () =>
       findCurrentComponent(
         workspace?.components || [],
@@ -66,14 +67,16 @@ const ExpandComponent = () => {
   }, [workspace?.componentEditingId]);
 
   React.useEffect(() => {
-    if (currentComponent) {
-      setBlur(currentComponent.blur.value);
-      setTemperature(currentComponent.lightUpPercent.value);
+    if (component) {
+      setBlur(getComponentTransform(component, MatrixIndex.BLUR));
+      setTemperature(
+        getComponentTransform(component, MatrixIndex.TEMPERATURE_UP)
+      );
     } else {
       setBlur(0);
       setTemperature(0);
     }
-  }, [currentComponent]);
+  }, [component]);
 
   const containerStyle = useAnimatedStyle(() => {
     return {
@@ -143,15 +146,15 @@ const ExpandComponent = () => {
                   updateCurrentWorkspace(
                     workspace?.componentEditingId,
                     {
-                      lightUpPercent: value[0],
+                      temperatureUpPercent: value[0],
                     },
                     queryClient
                   );
                 }}
-                minimumValue={MIN_LIGHT_UP}
-                maximumValue={MAX_LIGHT_UP}
+                minimumValue={MIN_TEMPERATURE_UP}
+                maximumValue={MAX_TEMPERATURE_UP}
                 containerStyle={{ width: "100%", height: verticalScale(35) }}
-                step={LIGHT_UP_STEP}
+                step={TEMPERATURE_UP_STEP}
                 minimumTrackTintColor="#7ccff8"
                 maximumTrackTintColor="#d4d4d4"
               />

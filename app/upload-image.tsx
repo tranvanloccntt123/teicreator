@@ -14,6 +14,8 @@ import useCurrentWorkspace, {
   pushComponentToCurrentWorkspace,
   pushComponentToDraftWorkspace,
 } from "@/hooks/useWorkspace";
+import { Component } from "@/type/store";
+import { INIT_MATRIX } from "@/constants/Workspace";
 const UploadImage = () => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
@@ -50,29 +52,19 @@ const UploadImage = () => {
 
   const addImageUploaded = async () => {
     const componentId: string = uuid.v4() as string;
-    const newComponent = {
+    const newComponent: Component = {
       id: componentId,
       data: { uri: image },
-      translateX: makeMutable(0),
-      translateY: makeMutable(0),
-      scale: makeMutable(1),
-      rotate: makeMutable(0),
-      blur: makeMutable(0),
-      lightUpPercent: makeMutable(0),
       size: imageSize,
       isBase64: true,
+      matrix: INIT_MATRIX.map((v) => makeMutable(v)),
     };
-    const newDraftComponent = {
+    const newDraftComponent: Component<number[]> = {
       id: componentId,
       data: { uri: image },
-      translateX: 0,
-      translateY: 0,
-      scale: 1,
-      rotate: 0,
-      blur: 0,
       size: imageSize,
       isBase64: true,
-      lightUpPercent: 0,
+      matrix: INIT_MATRIX,
     };
     pushComponentToCurrentWorkspace(newComponent, queryClient);
     pushComponentToDraftWorkspace(newDraftComponent, queryClient);

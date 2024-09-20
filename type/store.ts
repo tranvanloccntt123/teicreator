@@ -13,18 +13,23 @@ export type ImageUploading = {
   data: ImageSourcePropType;
 };
 
-export type Component<TransformType = SharedValue<number>> = {
+export type Component<MatrixType = Array<SharedValue<number>>> = {
   id: string;
   data: ImageSourcePropType;
   isBase64?: boolean;
-  translateX: TransformType;
-  translateY: TransformType;
-  scale: TransformType;
-  rotate: TransformType;
-  blur: TransformType;
   size: WorkspaceSize;
-  lightUpPercent: TransformType;
+  matrix: MatrixType;
 };
+
+export enum MatrixIndex {
+  TRANSLATE_X,
+  TRANSLATE_Y,
+  SCALE,
+  ROTATE,
+  BLUR,
+  TEMPERATURE_UP,
+  OPACITY,
+}
 
 export type WorkspaceSize<ValueType = number> = {
   width: ValueType;
@@ -47,7 +52,7 @@ export type Workspace = WorkspaceBase & {
 };
 
 export type DraftWorkspace = WorkspaceBase & {
-  components?: Array<Component<number>>;
+  components?: Array<Component<number[]>>;
 };
 
 export type Vector = {

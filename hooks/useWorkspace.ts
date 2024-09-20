@@ -1,5 +1,11 @@
 import { QueryKeys } from "@/constants/QueryKeys";
-import { Component, DraftWorkspace, Workspace } from "@/type/store";
+import {
+  Component,
+  DraftWorkspace,
+  MatrixIndex,
+  Workspace,
+} from "@/type/store";
+import { getComponentTransform, updateComponentTransform } from "@/utils";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 
 const useCurrentWorkspace = () =>
@@ -30,7 +36,7 @@ export const pushComponentToCurrentWorkspace = (
 };
 
 export const pushComponentToDraftWorkspace = (
-  component: Component<number>,
+  component: Component<number, number[]>,
   queryClient: QueryClient
 ) => {
   queryClient.setQueryData(
@@ -106,7 +112,7 @@ export const deleteComponentById = (id: string, queryClient: QueryClient) => {
 
 export const updateCurrentWorkspace = (
   id: string,
-  params: { blur?: number; lightUpPercent?: number },
+  params: { blur?: number; temperatureUpPercent?: number },
   queryClient: QueryClient
 ) => {
   queryClient.setQueryData(
@@ -115,14 +121,21 @@ export const updateCurrentWorkspace = (
       const components = oldData?.components || [];
       for (const index in components) {
         if (components[index].id === id) {
-          components[index].blur.value =
-            params.blur !== undefined
-              ? params.blur
-              : components[index].blur.value;
-          components[index].lightUpPercent.value =
-            params.lightUpPercent !== undefined
-              ? params.lightUpPercent
-              : components[index].lightUpPercent.value;
+          updateComponentTransform(
+            components[index],
+            MatrixIndex.BLUR,
+            params.blur ??
+              getComponentTransform(components[index], MatrixIndex.BLUR)
+          );
+          updateComponentTransform(
+            components[index],
+            MatrixIndex.TEMPERATURE_UP,
+            params.temperatureUpPercent ??
+              getComponentTransform(
+                components[index],
+                MatrixIndex.TEMPERATURE_UP
+              )
+          );
           break;
         }
       }

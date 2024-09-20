@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize } from "@/type/store";
+import { Component, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
@@ -15,9 +15,10 @@ import { GESTURE_Z_INDEX } from "@/constants/Workspace";
 import usePositionXY from "@/hooks/usePosition";
 import {
   componentSize,
+  getComponentTransform,
   resizeComponentFitWorkspace,
+  updateComponentTransform,
   vectorFromRadians,
-  vectorOnCircleLine,
 } from "@/utils";
 import { BTN_OPTION_ICON_SIZE, BTN_OPTION_SIZE } from "@/constants/EditImage";
 import { ScaledSheet } from "react-native-size-matters";
@@ -44,9 +45,14 @@ const GestureRotateComponent: React.FC<{
       BTN_OPTION_SIZE / 2
   );
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
-  const prevRotate = useSharedValue(component.rotate.value);
+  const prevRotate = useSharedValue(
+    getComponentTransform(component, MatrixIndex.ROTATE)
+  );
   const positionXY = useDerivedValue(() =>
-    vectorFromRadians(R.value, component.rotate.value)
+    vectorFromRadians(
+      R.value,
+      getComponentTransform(component, MatrixIndex.ROTATE)
+    )
   );
 
   const position: ViewStyle = {
@@ -55,28 +61,26 @@ const GestureRotateComponent: React.FC<{
     left: size.width / 2 - BTN_OPTION_SIZE / 2,
     zIndex: GESTURE_Z_INDEX + 1,
   };
-  const tap = Gesture.Tap()
-    .onEnd(() => {
-      //
-      component.rotate.value = withTiming(component.rotate.value + step, {
-        duration: 50,
-      });
-    })
-    .runOnJS(true);
+
   const pan = Gesture.Pan()
     .onBegin(() => {
       prevTranslate.x.value = positionXY.value.x;
       prevTranslate.y.value = positionXY.value.y;
-      prevRotate.value = component.rotate.value;
+      prevRotate.value = getComponentTransform(component, MatrixIndex.ROTATE);
     })
     .onUpdate((event) => {
       const translateX = prevTranslate.x.value + event.translationX;
       const translateY = prevTranslate.y.value + event.translationY;
       const rad = Math.atan2(translateY, translateX);
-      component.rotate.value = prevRotate.value + rad;
+      updateComponentTransform(
+        component,
+        MatrixIndex.ROTATE,
+        prevRotate.value + rad
+      );
     })
     .runOnJS(true);
-  const race = Gesture.Simultaneous(tap, pan);
+
+  const race = Gesture.Simultaneous(pan);
   const transformStyle = useAnimatedStyle(() => {
     return {
       transform: [
