@@ -13,12 +13,15 @@ export type ImageUploading = {
   data: ImageSourcePropType;
 };
 
+export type ComponentType = 'IMAGE' | 'PAINT';
+
 export type Component<MatrixType = Array<SharedValue<number>>> = {
   id: string;
-  data: ImageSourcePropType;
+  data: ImageSourcePropType | Array<number>;
   isBase64?: boolean;
   size: WorkspaceSize;
   matrix: MatrixType;
+  type: ComponentType;
 };
 
 export enum MatrixIndex {

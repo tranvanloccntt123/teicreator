@@ -58,6 +58,7 @@ const UploadImage = () => {
       size: imageSize,
       isBase64: true,
       matrix: INIT_MATRIX.map((v) => makeMutable(v)),
+      type: "IMAGE",
     };
     const newDraftComponent: Component<number[]> = {
       id: componentId,
@@ -65,6 +66,7 @@ const UploadImage = () => {
       size: imageSize,
       isBase64: true,
       matrix: INIT_MATRIX,
+      type: "IMAGE",
     };
     pushComponentToCurrentWorkspace(newComponent, queryClient);
     pushComponentToDraftWorkspace(newDraftComponent, queryClient);

@@ -5,7 +5,9 @@ export const GESTURE_Z_INDEX = 4000;
 export const COMPONENT_Z_INDEX = 1000;
 export const GESTURE_TAP_Z_INDEX = 3000;
 export const HEADER_Z_INDEX = 2000;
-export const EXPAND_COMPONENT_Z_INDEX = 6000;
+export const TOOL_COMPONENT_Z_INDEX = 6000;
+export const EXPAND_COMPONENT_Z_INDEX = 6001;
+export const EXPAND_FRAME_Z_INDEX = 6002;
 export const EXPAND_WIDTH = scale(150);
 export const EXPAND_CLOSE_POSITION = -scale(250);
 export const EXPAND_OPEN_POSITION = scale(5);
@@ -22,6 +24,9 @@ export const TEMPERATURE_UP = [
 export const UP_PINK = [
   1.3, 0, 0, 0, 0, 0, 0.9, 0, 0, 0, 0, 0, 1.1, 0, 0, 0, 0, 0, 0, 0,
 ];
+export const MAX_OPACITY = 100;
+export const MIN_OPACITY = 0;
+export const OPACITY_STEP = 1;
 // R G B A
 // const colorMatrix = [
 //   1,0,0,0,0,
@@ -33,4 +38,4 @@ export const MATRIX_FILTER = [
   1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
 ];
 
-export const INIT_MATRIX = [0, 0, 1, 0, 0, 0, 0];
+export const INIT_MATRIX = [0, 0, 1, 0, 0, 0, 1];

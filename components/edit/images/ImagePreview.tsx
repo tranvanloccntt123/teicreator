@@ -84,8 +84,12 @@ const ImagePreviewFromBase64: React.FC<{
     )
   );
 
+  const opacity = useDerivedValue(() =>
+    getComponentTransform(component, MatrixIndex.OPACITY)
+  );
+
   return (
-    <Group transform={translateTransform}>
+    <Group transform={translateTransform} opacity={opacity}>
       <Group
         origin={{
           x: size.width / 2,

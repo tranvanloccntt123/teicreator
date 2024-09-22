@@ -1,7 +1,4 @@
 import React from "react";
-import { Fab } from "@/components/ui/fab";
-import { AntDesign } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
 import { WorkspaceControlView } from "@/components/edit/images";
@@ -18,12 +15,6 @@ const Workspace = () => {
         <WorkspaceControlView />
       </Box>
       <ExpandComponent />
-      <Fab
-        onPress={() => router.navigate("/upload-image")}
-        className="bg-white"
-      >
-        <AntDesign name="plus" size={24} color="black" />
-      </Fab>
     </Box>
   );
 };
