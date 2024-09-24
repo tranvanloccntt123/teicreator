@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import useCurrentWorkspace, { setCurrentComponent } from "@/hooks/useWorkspace";
 import { FlatList, TouchableOpacity } from "react-native";
 import { Component } from "@/type/store";
-import { Canvas, Image, Skia } from "@shopify/react-native-skia";
+import { Canvas, Image, SkImage, Skia } from "@shopify/react-native-skia";
 import { ImageURISource } from "react-native";
 import { ScaledSheet, scale } from "react-native-size-matters";
 import { fitComponentSize } from "@/utils";
@@ -18,18 +18,8 @@ const FrameItem: React.FC<{ component: Component }> = ({ component }) => {
   if (component.type === "PAINT") {
     return <></>;
   }
-  const base64 = React.useMemo(
-    () =>
-      (component.data as ImageURISource).uri?.replace(
-        "data:image/jpeg;base64,",
-        ""
-      ),
-    [component]
-  );
   const queryClient = useQueryClient();
   const _FRAME_SIZE = FRAME_SIZE - scale(10);
-  const data = Skia.Data.fromBase64(base64);
-  const image = Skia.Image.MakeImageFromEncoded(data);
   const size = React.useMemo(
     () =>
       fitComponentSize({
@@ -41,11 +31,13 @@ const FrameItem: React.FC<{ component: Component }> = ({ component }) => {
     [component]
   );
   return (
-    <TouchableOpacity onPress={() => setCurrentComponent(component.id, queryClient)}>
+    <TouchableOpacity
+      onPress={() => setCurrentComponent(component.id, queryClient)}
+    >
       <Center style={styles.frameItemContainer}>
         <Canvas style={{ width: _FRAME_SIZE, height: _FRAME_SIZE }}>
           <Image
-            image={image}
+            image={component.data as SkImage}
             fit="contain"
             x={0}
             y={0}

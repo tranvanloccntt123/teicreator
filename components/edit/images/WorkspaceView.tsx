@@ -8,6 +8,7 @@ import { scale, verticalScale } from "react-native-size-matters";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
 import RoundRootComponent from "./RoundRootComponent";
 import { fitComponentSize } from "@/utils";
+import Painting from "./Painting";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();
 
@@ -33,6 +34,8 @@ const WorkspaceView: React.FC<object> = () => {
     workspace.viewResize.scale.value = fitRootView.scale;
   }, [workspace, width, height]);
 
+  console.log('update');
+
   return (
     <Box
       style={{
@@ -52,13 +55,26 @@ const WorkspaceView: React.FC<object> = () => {
         }}
       >
         <RoundRootComponent workspace={workspace} />
-        {(workspace?.components || [])?.map((component) => (
-          <ImagePreviewFromBase64
-            key={component.id}
-            rootSize={workspace.viewResize}
-            component={component}
-          />
-        ))}
+        {(workspace?.components || [])?.map((component) => {
+          switch (component.type) {
+            case "PAINT":
+              return (
+                <Painting
+                  key={component.id}
+                  rootSize={workspace.viewResize}
+                  component={component}
+                />
+              );
+            default:
+              return (
+                <ImagePreviewFromBase64
+                  key={component.id}
+                  rootSize={workspace.viewResize}
+                  component={component}
+                />
+              );
+          }
+        })}
       </Canvas>
     </Box>
   );

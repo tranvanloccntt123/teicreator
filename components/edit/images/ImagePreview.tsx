@@ -6,6 +6,7 @@ import {
   Skia,
   Blur,
   ColorMatrix,
+  SkImage,
 } from "@shopify/react-native-skia";
 import { Component, FitSize, MatrixIndex } from "@/type/store";
 import { ImageURISource, useWindowDimensions } from "react-native";
@@ -23,16 +24,6 @@ const ImagePreviewFromBase64: React.FC<{
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
   const { width, height } = useWindowDimensions();
-  const base64 = React.useMemo(
-    () =>
-      (component.data as ImageURISource).uri?.replace(
-        "data:image/jpeg;base64,",
-        ""
-      ),
-    [component]
-  );
-  const data = Skia.Data.fromBase64(base64);
-  const image = Skia.Image.MakeImageFromEncoded(data);
   const size = React.useMemo(
     () => resizeComponentFitWorkspace(component, rootSize.scale),
     [component]
@@ -98,7 +89,7 @@ const ImagePreviewFromBase64: React.FC<{
         transform={contentTransform}
       >
         <Image
-          image={image}
+          image={component.data as SkImage}
           fit="contain"
           x={0}
           y={0}

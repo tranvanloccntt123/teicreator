@@ -1,75 +1,38 @@
 import React from "react";
-import { Component, FitSize, MatrixIndex } from "@/type/store";
+import { Component, FitSize, MatrixIndex, PaintMatrix } from "@/type/store";
 import Animated, {
   SharedValue,
   clamp,
+  makeMutable,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle, useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
-import { ScaledSheet } from "react-native-size-matters";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { deleteComponentById } from "@/hooks/useWorkspace";
-import { useQueryClient } from "@tanstack/react-query";
 import usePositionXY from "@/hooks/usePosition";
-import {
-  BTN_OPTION_ICON_SIZE,
-  BTN_OPTION_SIZE,
-  MAX_SCALE,
-  MIN_SCALE,
-} from "@/constants/EditImage";
-import GestureRotateComponent from "./GestureRotateComponent";
-import GestureResizeComponent from "./GestureResizeComponent";
+import { MAX_SCALE, MIN_SCALE } from "@/constants/EditImage";
 import {
   getComponentTransform,
   resizeComponentFitWorkspace,
   rootTranslate,
   updateComponentTransform,
 } from "@/utils";
+import { ScaledSheet } from "react-native-size-matters";
+import { updatePaintStatus } from "@/hooks/useWorkspace";
+import { useQueryClient } from "@tanstack/react-query";
 
-const TrashComponent: React.FC<{
-  component: Component;
-  rootSize: FitSize<SharedValue<number>>;
-}> = ({ component, rootSize }) => {
-  const queryClient = useQueryClient();
-  const size = React.useMemo(
-    () => resizeComponentFitWorkspace(component, rootSize.scale),
-    [component]
-  );
-  const deleteCurrentComponent = () => {
-    deleteComponentById(component.id, queryClient);
-  };
-  const tap = Gesture.Tap()
-    .onEnd(() => {
-      deleteCurrentComponent();
-    })
-    .runOnJS(true);
-  const position: ViewStyle = {
-    position: "absolute",
-    top: size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: size.width / 2 - BTN_OPTION_SIZE / 2,
-    zIndex: GESTURE_Z_INDEX + 2,
-  };
-  return (
-    <GestureDetector gesture={tap}>
-      <Animated.View style={[position]}>
-        <Box className="bg-white/54 rounded-full" style={styles.icons}>
-          <AntDesign name="delete" size={BTN_OPTION_ICON_SIZE} color="black" />
-        </Box>
-      </Animated.View>
-    </GestureDetector>
-  );
-};
-
-const GestureComponent: React.FC<{
+const GesturePaintComponent: React.FC<{
   component: Component;
   index: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {
   const { width, height } = useWindowDimensions();
+  const queryClient = useQueryClient();
+  const isTranslateVisible = useSharedValue(false);
+  const lineIndex = React.useRef((component.data as PaintMatrix)?.length ?? 0);
+  const data = React.useRef(component.data as PaintMatrix);
   const prevScale = useSharedValue(
     getComponentTransform(component, MatrixIndex.SCALE)
   );
@@ -95,7 +58,21 @@ const GestureComponent: React.FC<{
     .runOnJS(true);
 
   const pan = Gesture.Pan()
-    .onBegin(() => {
+    .onBegin((event) => {
+      if (!isTranslateVisible.value) {
+        if ((component.data as PaintMatrix).length <= lineIndex.current) {
+          const x = event.absoluteX / rootSize.scale.value;
+          const y = event.absoluteY / rootSize.scale.value;
+          data.current.push([x, y]);
+          updatePaintStatus(
+            queryClient,
+            `MOVE-TO-${x}-${y}`,
+            index,
+            data.current
+          );
+        }
+        return;
+      }
       prevTranslate.x.value = getComponentTransform(
         component,
         MatrixIndex.TRANSLATE_X
@@ -106,6 +83,19 @@ const GestureComponent: React.FC<{
       );
     })
     .onUpdate((event) => {
+      if (!isTranslateVisible.value) {
+        const x = event.absoluteX / rootSize.scale.value;
+        const y = event.absoluteY / rootSize.scale.value;
+        data.current[lineIndex.current].push(x);
+        data.current[lineIndex.current].push(y);
+        updatePaintStatus(
+          queryClient,
+          `MOVE-TO-${x}-${y}`,
+          index,
+          data.current
+        );
+        return;
+      }
       updateComponentTransform(
         component,
         MatrixIndex.TRANSLATE_X,
@@ -116,6 +106,9 @@ const GestureComponent: React.FC<{
         MatrixIndex.TRANSLATE_Y,
         prevTranslate.y.value + event.translationY
       );
+    })
+    .onEnd(() => {
+      lineIndex.current = lineIndex.current + 1;
     })
     .runOnJS(true);
 
@@ -130,8 +123,6 @@ const GestureComponent: React.FC<{
         prevRotate.value + event.rotation
       );
     });
-
-  const race = Gesture.Exclusive(Gesture.Simultaneous(pinch, pan, rotation));
 
   const size = React.useMemo(
     () => resizeComponentFitWorkspace(component, rootSize.scale),
@@ -187,33 +178,32 @@ const GestureComponent: React.FC<{
     ],
   }));
 
+  const race = Gesture.Simultaneous(pinch, pan, rotation);
+
   return (
-    <Animated.View style={[componentSize, translateStyle]}>
-      <Animated.View style={[componentSize, contentStyle]}>
-        <GestureDetector gesture={race}>
+    <GestureDetector gesture={race}>
+      <Animated.View style={[componentSize, translateStyle]}>
+        <Animated.View style={[componentSize, contentStyle]}>
           <Animated.View style={[componentSize, scaleStyle]}>
             <Box className="flex-1 border-dotted border border-secondary-900" />
           </Animated.View>
-        </GestureDetector>
-        <GestureResizeComponent rootSize={rootSize} component={component} />
+        </Animated.View>
       </Animated.View>
-      <GestureRotateComponent
-        rootSize={rootSize}
-        step={0.1}
-        component={component}
-      />
-      <TrashComponent rootSize={rootSize} component={component} />
-    </Animated.View>
+    </GestureDetector>
   );
 };
 
-export default GestureComponent;
+export default GesturePaintComponent;
 
 const styles = ScaledSheet.create({
-  icons: {
-    width: BTN_OPTION_SIZE,
-    height: BTN_OPTION_SIZE,
-    justifyContent: "center",
-    alignItems: "center",
+  panContainer: {
+    position: "absolute",
+    zIndex: GESTURE_Z_INDEX,
+    top: 0,
+    left: 0,
+    width: "4@s",
+    height: "4@s",
+    borderRadius: "4@s",
+    borderWidth: 1,
   },
 });

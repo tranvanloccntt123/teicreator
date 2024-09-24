@@ -12,10 +12,10 @@ import uuid from "react-native-uuid";
 import { makeMutable } from "react-native-reanimated";
 import useCurrentWorkspace, {
   pushComponentToCurrentWorkspace,
-  pushComponentToDraftWorkspace,
 } from "@/hooks/useWorkspace";
 import { Component } from "@/type/store";
 import { INIT_MATRIX } from "@/constants/Workspace";
+import { Skia } from "@shopify/react-native-skia";
 const UploadImage = () => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
@@ -44,32 +44,27 @@ const UploadImage = () => {
       //   width: imageSize.width,
       //   height: imageSize.height,
       // });
-      setImage(
-        `data:image/jpeg;base64,${first(imageUploaded?.assets || [])?.base64}`
-      );
+      // setImage(
+      //   `data:image/jpeg;base64,${first(imageUploaded?.assets || [])?.base64}`
+      // );
+      setImage(first(imageUploaded?.assets || [])?.base64);
     }
   };
 
   const addImageUploaded = async () => {
     const componentId: string = uuid.v4() as string;
+    const data = Skia.Data.fromBase64(image);
+    const _image = Skia.Image.MakeImageFromEncoded(data);
+
     const newComponent: Component = {
       id: componentId,
-      data: { uri: image },
+      data: _image,
       size: imageSize,
       isBase64: true,
       matrix: INIT_MATRIX.map((v) => makeMutable(v)),
       type: "IMAGE",
     };
-    const newDraftComponent: Component<number[]> = {
-      id: componentId,
-      data: { uri: image },
-      size: imageSize,
-      isBase64: true,
-      matrix: INIT_MATRIX,
-      type: "IMAGE",
-    };
     pushComponentToCurrentWorkspace(newComponent, queryClient);
-    pushComponentToDraftWorkspace(newDraftComponent, queryClient);
     navigation.goBack();
   };
 
@@ -99,7 +94,7 @@ const UploadImage = () => {
       <ScrollView style={AppStyles.container}>
         {Boolean(image) && (
           <Image
-            source={{ uri: image }}
+            source={{ uri: `data:image/jpeg;base64,${image}` }}
             style={{ width, height, resizeMode: "contain" }}
           />
         )}

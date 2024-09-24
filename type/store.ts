@@ -13,14 +13,16 @@ export type ImageUploading = {
   data: ImageSourcePropType;
 };
 
-export type ComponentType = 'IMAGE' | 'PAINT';
+export type ComponentType = "IMAGE" | "PAINT";
 
-export type Component<MatrixType = Array<SharedValue<number>>> = {
+export type PaintMatrix = Array<Array<number>>;
+
+export type Component<ListParams = Array<SharedValue<number>>> = {
   id: string;
-  data: ImageSourcePropType | Array<number>;
+  data: SkImage | PaintMatrix;
   isBase64?: boolean;
   size: WorkspaceSize;
-  matrix: MatrixType;
+  matrix: ListParams;
   type: ComponentType;
 };
 
@@ -52,6 +54,7 @@ export type Workspace = WorkspaceBase & {
   components?: Array<Component>;
   componentEditingId?: string;
   viewResize: FitSize<SharedValue<number>>;
+  paintStatus?: string;
 };
 
 export type DraftWorkspace = WorkspaceBase & {

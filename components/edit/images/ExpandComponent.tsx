@@ -13,9 +13,11 @@ import {
   MAX_OPACITY,
   OPACITY_STEP,
   EXPAND_COMPONENT_Z_INDEX,
+  INIT_MATRIX,
 } from "@/constants/Workspace";
 import Animated, {
   interpolate,
+  makeMutable,
   runOnJS,
   useAnimatedReaction,
   useAnimatedStyle,
@@ -25,6 +27,7 @@ import Animated, {
 import { ScaledSheet, verticalScale } from "react-native-size-matters";
 import useCurrentWorkspace, {
   clearCurrentComponent,
+  pushComponentToCurrentWorkspace,
 } from "@/hooks/useWorkspace";
 import { Slider } from "@miblanchard/react-native-slider";
 import {
@@ -34,7 +37,7 @@ import {
 } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Center } from "@/components/ui/center";
-import { MatrixIndex } from "@/type/store";
+import { Component, MatrixIndex } from "@/type/store";
 import { Button, ButtonGroup } from "@/components/ui/button";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -43,6 +46,7 @@ import Fontisto from "@expo/vector-icons/Fontisto";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import FrameList from "./FrameList";
+import uuid from "react-native-uuid";
 
 const ExpandComponent = () => {
   const queryClient = useQueryClient();
@@ -133,6 +137,19 @@ const ExpandComponent = () => {
       [EXPAND_COMPONENT_Z_INDEX, -1]
     ),
   }));
+
+  const createPaint = () => {
+    const componentId: string = uuid.v4() as string;
+    const newComponent: Component = {
+      id: componentId,
+      data: [],
+      size: workspace.size,
+      isBase64: true,
+      matrix: INIT_MATRIX.map((v) => makeMutable(v)),
+      type: "PAINT",
+    };
+    pushComponentToCurrentWorkspace(newComponent, queryClient);
+  };
 
   return (
     <>
@@ -284,7 +301,7 @@ const ExpandComponent = () => {
                 <Button
                   variant="outline"
                   className="border-0"
-                  onPress={() => {}}
+                  onPress={createPaint}
                 >
                   <FontAwesome6 name="paintbrush" size={24} color="black" />
                 </Button>

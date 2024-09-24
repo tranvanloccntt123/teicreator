@@ -3,6 +3,7 @@ import {
   Component,
   DraftWorkspace,
   MatrixIndex,
+  PaintMatrix,
   Workspace,
 } from "@/type/store";
 import { getComponentTransform, updateComponentTransform } from "@/utils";
@@ -31,12 +32,13 @@ export const pushComponentToCurrentWorkspace = (
     (oldData: Workspace): Workspace => ({
       ...oldData,
       components: [...(oldData?.components || []), component],
+      componentEditingId: component.id,
     })
   );
 };
 
 export const pushComponentToDraftWorkspace = (
-  component: Component<number, number[]>,
+  component: Component<number[]>,
   queryClient: QueryClient
 ) => {
   queryClient.setQueryData(
@@ -112,7 +114,11 @@ export const deleteComponentById = (id: string, queryClient: QueryClient) => {
 
 export const updateCurrentWorkspace = (
   id: string,
-  params: { blur?: number; temperatureUpPercent?: number },
+  params: {
+    blur?: number;
+    temperatureUpPercent?: number;
+    paintData?: PaintMatrix;
+  },
   queryClient: QueryClient
 ) => {
   queryClient.setQueryData(
@@ -136,6 +142,9 @@ export const updateCurrentWorkspace = (
                 MatrixIndex.TEMPERATURE_UP
               )
           );
+          if (params.paintData && components[index].type === "PAINT") {
+            components[index].data = params.paintData;
+          }
           break;
         }
       }
@@ -143,6 +152,26 @@ export const updateCurrentWorkspace = (
         ...oldData,
         components,
         componentEditingId: id,
+      };
+    }
+  );
+};
+
+export const updatePaintStatus = (
+  queryClient: QueryClient,
+  paintStatus: string,
+  componentIndex: number,
+  data: PaintMatrix
+) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      components[componentIndex].data = data;
+      return {
+        ...oldData,
+        components,
+        paintStatus: paintStatus,
       };
     }
   );
