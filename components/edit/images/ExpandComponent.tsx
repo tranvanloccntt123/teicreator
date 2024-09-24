@@ -107,7 +107,10 @@ const ExpandComponent = () => {
     setIsBlurVisible(false);
     setIsTemperatureVisible(false);
     setIsOpacityVisible(false);
-    // setIsFrameVisible(false);
+  };
+
+  const closeTool = () => {
+    setIsFrameVisible(false);
   };
 
   useAnimatedReaction(
@@ -115,6 +118,8 @@ const ExpandComponent = () => {
     (res) => {
       if (!res) {
         runOnJS(closeExpand)();
+      } else {
+        runOnJS(closeTool)();
       }
     },
     [isComponentExpand.value]
@@ -183,7 +188,7 @@ const ExpandComponent = () => {
               </Box>
             </Box>
           )}
-          {isTemperatureVisible && (
+          {isTemperatureVisible && component?.type === "IMAGE" && (
             <Box
               style={styles.toolContainer}
               className="bg-white rounded-xl shadow-md px-4 py-2"
@@ -240,28 +245,32 @@ const ExpandComponent = () => {
           <Animated.View style={[componentExpandStyle, styles.expandContainer]}>
             <Box className="bg-white flex-1 rounded-md p-2 shadow-md">
               <ButtonGroup flexDirection="row" className="flex-row px-2">
-                <Button
-                  variant="outline"
-                  className="border-0"
-                  onPress={() => {
-                    const preValue = isBlurVisible;
-                    closeExpand();
-                    setIsBlurVisible(!preValue);
-                  }}
-                >
-                  <MaterialIcons name="blur-on" size={24} color="black" />
-                </Button>
-                <Button
-                  variant="outline"
-                  onPress={() => {
-                    const preValue = isTemperatureVisible;
-                    closeExpand();
-                    setIsTemperatureVisible(!preValue);
-                  }}
-                  className="border-0"
-                >
-                  <Fontisto name="day-sunny" size={24} color="black" />
-                </Button>
+                {component?.type === "IMAGE" && (
+                  <Button
+                    variant="outline"
+                    className="border-0"
+                    onPress={() => {
+                      const preValue = isBlurVisible;
+                      closeExpand();
+                      setIsBlurVisible(!preValue);
+                    }}
+                  >
+                    <MaterialIcons name="blur-on" size={24} color="black" />
+                  </Button>
+                )}
+                {component?.type === "IMAGE" && (
+                  <Button
+                    variant="outline"
+                    onPress={() => {
+                      const preValue = isTemperatureVisible;
+                      closeExpand();
+                      setIsTemperatureVisible(!preValue);
+                    }}
+                    className="border-0"
+                  >
+                    <Fontisto name="day-sunny" size={24} color="black" />
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onPress={() => {
@@ -310,7 +319,7 @@ const ExpandComponent = () => {
                   className="border-0"
                   onPress={() => {
                     const preValue = isFrameVisible;
-                    closeExpand();
+                    closeTool();
                     setIsFrameVisible(!preValue);
                   }}
                 >

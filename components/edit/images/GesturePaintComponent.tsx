@@ -5,6 +5,7 @@ import Animated, {
   clamp,
   makeMutable,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -57,12 +58,17 @@ const GesturePaintComponent: React.FC<{
     })
     .runOnJS(true);
 
+  const rootX = useDerivedValue(() => (width - rootSize.width.value) / 2);
+
+  const rootY = useDerivedValue(() => (height - rootSize.height.value) / 2);
+
   const pan = Gesture.Pan()
     .onBegin((event) => {
       if (!isTranslateVisible.value) {
         if ((component.data as PaintMatrix).length <= lineIndex.current) {
-          const x = event.absoluteX / rootSize.scale.value;
-          const y = event.absoluteY / rootSize.scale.value;
+          console.log(event);
+          const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
+          const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
           data.current.push([x, y]);
           updatePaintStatus(
             queryClient,
@@ -84,8 +90,8 @@ const GesturePaintComponent: React.FC<{
     })
     .onUpdate((event) => {
       if (!isTranslateVisible.value) {
-        const x = event.absoluteX / rootSize.scale.value;
-        const y = event.absoluteY / rootSize.scale.value;
+        const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
+          const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
         data.current[lineIndex.current].push(x);
         data.current[lineIndex.current].push(y);
         updatePaintStatus(

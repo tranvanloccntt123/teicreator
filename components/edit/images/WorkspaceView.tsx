@@ -34,8 +34,6 @@ const WorkspaceView: React.FC<object> = () => {
     workspace.viewResize.scale.value = fitRootView.scale;
   }, [workspace, width, height]);
 
-  console.log('update');
-
   return (
     <Box
       style={{
