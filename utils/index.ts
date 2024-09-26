@@ -106,6 +106,9 @@ export const first = <T = any>(arr: Array<T>) => arr?.[0] || undefined;
 export const last = <T = any>(arr: Array<T>) =>
   arr?.[arr?.length - 1] || undefined;
 
+export const hasIndex = <T = any>(arr: Array<T>, index: number): boolean =>
+  Boolean(arr[index]);
+
 export const createNewWorspace = ({
   size,
 }: {
@@ -282,4 +285,33 @@ export const updateComponentTransform = (
   value: number
 ) => {
   component.matrix[transform].value = value;
+};
+
+export const scalePathData = (pathData: string, scale: number): string => {
+  // Biểu thức chính quy để tìm tất cả các giá trị số (tọa độ x, y) trong chuỗi d
+  const pathCommandRegex = /([a-zA-Z])|([+-]?\d*\.?\d+)/g;
+
+  // Phân tích cú pháp path data để lấy các lệnh và tọa độ
+  const parts = pathData.match(pathCommandRegex);
+
+  if (!parts) {
+    throw new Error("Invalid path data");
+  }
+
+  // Mảng mới để chứa path với tọa độ đã được scale
+  const scaledParts: string[] = [];
+
+  parts.forEach((part) => {
+    // Nếu phần này là một lệnh (chữ cái), chúng ta giữ nguyên
+    if (isNaN(Number(part))) {
+      scaledParts.push(part);
+    } else {
+      // Nếu phần này là một tọa độ (số), chúng ta nhân nó với giá trị scale
+      const scaledValue = parseFloat(part) * scale;
+      scaledParts.push(scaledValue.toString());
+    }
+  });
+
+  // Kết hợp lại thành một chuỗi `d` mới
+  return scaledParts.join(" ");
 };

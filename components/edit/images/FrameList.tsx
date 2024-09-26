@@ -56,8 +56,8 @@ const FrameItem: React.FC<{
       const path = Skia.Path.Make();
       listPath.forEach((line) => {
         for (let i = 0; i < line.length - 2; i += 2) {
-          const x = line[i] * rootSize.scale;
-          const y = line[i + 1] * rootSize.scale;
+          const x = line[i] as number * rootSize.scale;
+          const y = line[i + 1] as number * rootSize.scale;
           if (i === 0) {
             path.moveTo(x, y);
             continue;

@@ -2,8 +2,6 @@ import React from "react";
 import { Component, FitSize, MatrixIndex, PaintMatrix } from "@/type/store";
 import Animated, {
   SharedValue,
-  clamp,
-  makeMutable,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
@@ -11,18 +9,18 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle, useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
-import { GESTURE_Z_INDEX } from "@/constants/Workspace";
+import { GESTURE_Z_INDEX, PAINT_WEIGHT } from "@/constants/Workspace";
 import usePositionXY from "@/hooks/usePosition";
-import { MAX_SCALE, MIN_SCALE } from "@/constants/EditImage";
 import {
   getComponentTransform,
+  hasIndex,
   resizeComponentFitWorkspace,
   rootTranslate,
   updateComponentTransform,
 } from "@/utils";
-import { ScaledSheet } from "react-native-size-matters";
 import { updatePaintStatus } from "@/hooks/useWorkspace";
 import { useQueryClient } from "@tanstack/react-query";
+import { KalmanFilter } from "@/services/kalmanFilter";
 
 const GesturePaintComponent: React.FC<{
   component: Component;
@@ -32,51 +30,43 @@ const GesturePaintComponent: React.FC<{
   const { width, height } = useWindowDimensions();
   const queryClient = useQueryClient();
   const isTranslateVisible = useSharedValue(false);
-  const lineIndex = React.useRef((component.data as PaintMatrix)?.length ?? 0);
   const data = React.useRef(component.data as PaintMatrix);
-  const prevScale = useSharedValue(
-    getComponentTransform(component, MatrixIndex.SCALE)
-  );
   const prevTranslate = usePositionXY({
     x: getComponentTransform(component, MatrixIndex.TRANSLATE_X),
     y: getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
   });
-  const prevRotate = useSharedValue(
-    getComponentTransform(component, MatrixIndex.ROTATE)
-  );
-
-  const pinch = Gesture.Pinch()
-    .onBegin(() => {
-      prevScale.value = getComponentTransform(component, MatrixIndex.SCALE);
-    })
-    .onUpdate((event) => {
-      updateComponentTransform(
-        component,
-        MatrixIndex.SCALE,
-        clamp(prevScale.value * event.scale, MIN_SCALE, MAX_SCALE)
-      );
-    })
-    .runOnJS(true);
 
   const rootX = useDerivedValue(() => (width - rootSize.width.value) / 2);
 
   const rootY = useDerivedValue(() => (height - rootSize.height.value) / 2);
 
-  const pan = Gesture.Pan()
+  const kalmanX = React.useRef(new KalmanFilter({ R: 0.015, Q: 0.3 }));
+
+  const kalmanY = React.useRef(new KalmanFilter({ R: 0.015, Q: 0.3 }));
+
+  const tap = Gesture.Tap()
     .onBegin((event) => {
       if (!isTranslateVisible.value) {
-        if ((component.data as PaintMatrix).length <= lineIndex.current) {
-          console.log(event);
-          const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
-          const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
-          data.current.push([x, y]);
-          updatePaintStatus(
-            queryClient,
-            `MOVE-TO-${x}-${y}`,
-            index,
-            data.current
-          );
-        }
+        kalmanX.current.clear();
+        kalmanY.current.clear();
+        const weight = component.params.lastWeight ?? PAINT_WEIGHT[0];
+        const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
+        const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
+        data.current.push([weight, x, y]);
+        updatePaintStatus(
+          queryClient,
+          `MOVE-TO-${x}-${y}`,
+          index,
+          data.current
+        );
+        return;
+      }
+    })
+    .runOnJS(true);
+
+  const pan = Gesture.Pan()
+    .onBegin(() => {
+      if (!isTranslateVisible.value) {
         return;
       }
       prevTranslate.x.value = getComponentTransform(
@@ -91,9 +81,19 @@ const GesturePaintComponent: React.FC<{
     .onUpdate((event) => {
       if (!isTranslateVisible.value) {
         const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
-          const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
-        data.current[lineIndex.current].push(x);
-        data.current[lineIndex.current].push(y);
+        const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
+        const list = data.current[data.current.length - 1];
+        const length = list.length;
+        if (hasIndex(list, length - 1) && hasIndex(list, length - 2)) {
+          const prevX = list[length - 2];
+          const prevY = list[length - 1];
+          const smoothX = kalmanX.current.filter(prevX as number);
+          const smoothY = kalmanY.current.filter(prevY as number);
+          data.current[data.current.length - 1][length - 2] = smoothX;
+          data.current[data.current.length - 1][length - 1] = smoothY;
+        }
+        data.current[data.current.length - 1].push(x);
+        data.current[data.current.length - 1].push(y);
         updatePaintStatus(
           queryClient,
           `MOVE-TO-${x}-${y}`,
@@ -113,22 +113,8 @@ const GesturePaintComponent: React.FC<{
         prevTranslate.y.value + event.translationY
       );
     })
-    .onEnd(() => {
-      lineIndex.current = lineIndex.current + 1;
-    })
+    .onEnd(() => {})
     .runOnJS(true);
-
-  const rotation = Gesture.Rotation()
-    .onBegin(() => {
-      prevRotate.value = getComponentTransform(component, MatrixIndex.ROTATE);
-    })
-    .onUpdate((event) => {
-      updateComponentTransform(
-        component,
-        MatrixIndex.ROTATE,
-        prevRotate.value + event.rotation
-      );
-    });
 
   const size = React.useMemo(
     () => resizeComponentFitWorkspace(component, rootSize.scale),
@@ -184,7 +170,7 @@ const GesturePaintComponent: React.FC<{
     ],
   }));
 
-  const race = Gesture.Simultaneous(pinch, pan, rotation);
+  const race = Gesture.Simultaneous(tap, pan);
 
   return (
     <GestureDetector gesture={race}>
@@ -200,16 +186,3 @@ const GesturePaintComponent: React.FC<{
 };
 
 export default GesturePaintComponent;
-
-const styles = ScaledSheet.create({
-  panContainer: {
-    position: "absolute",
-    zIndex: GESTURE_Z_INDEX,
-    top: 0,
-    left: 0,
-    width: "4@s",
-    height: "4@s",
-    borderRadius: "4@s",
-    borderWidth: 1,
-  },
-});

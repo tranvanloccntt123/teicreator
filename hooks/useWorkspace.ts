@@ -4,6 +4,7 @@ import {
   DraftWorkspace,
   MatrixIndex,
   PaintMatrix,
+  PaintParams,
   Workspace,
 } from "@/type/store";
 import { getComponentTransform, updateComponentTransform } from "@/utils";
@@ -172,6 +173,27 @@ export const updatePaintStatus = (
         ...oldData,
         components,
         paintStatus: paintStatus,
+      };
+    }
+  );
+};
+
+export const updatePaintParams = (
+  queryClient: QueryClient,
+  params: PaintParams
+) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      const componentIndex: number = components.findIndex(
+        (component) => component.id === oldData.componentEditingId
+      );
+      components[componentIndex]["params"] = params;
+      return {
+        ...oldData,
+        components,
+        paintStatus: "CHANGE-WEIGHT",
       };
     }
   );

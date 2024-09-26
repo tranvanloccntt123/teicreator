@@ -93,7 +93,7 @@ const AppNavigation = () => {
           }}
         />
       </Stack>
-      <Animated.View style={[styles.menuContext, menuContextStyle]}>
+      {/* <Animated.View style={[styles.menuContext, menuContextStyle]}>
         <Box className="flex-1 bg-white shadow-md rounded-md p-2">
           <Pressable
             onPress={() => {
@@ -104,7 +104,7 @@ const AppNavigation = () => {
             <Text style={styles.developmentTxt}>Development</Text>
           </Pressable>
         </Box>
-      </Animated.View>
+      </Animated.View> */}
     </Box>
   );
 };

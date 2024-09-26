@@ -15,7 +15,11 @@ export type ImageUploading = {
 
 export type ComponentType = "IMAGE" | "PAINT";
 
-export type PaintMatrix = Array<Array<number>>;
+export type PaintMatrix = Array<Array<number | string>>;
+
+export type PaintParams = {
+  lastWeight?: number;
+};
 
 export type Component<ListParams = Array<SharedValue<number>>> = {
   id: string;
@@ -24,6 +28,7 @@ export type Component<ListParams = Array<SharedValue<number>>> = {
   size: WorkspaceSize;
   matrix: ListParams;
   type: ComponentType;
+  params?: PaintParams;
 };
 
 export enum MatrixIndex {
