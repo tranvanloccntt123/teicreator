@@ -15,6 +15,10 @@ import {
   EXPAND_COMPONENT_Z_INDEX,
   INIT_MATRIX,
   PAINT_WEIGHT,
+  MIN_PAINT_WEIGHT,
+  MAX_PAINT_WEIGHT,
+  PAINT_WEIGHT_STEP,
+  COLOR,
 } from "@/constants/Workspace";
 import Animated, {
   interpolate,
@@ -34,24 +38,24 @@ import useCurrentWorkspace, {
 import { Slider } from "@miblanchard/react-native-slider";
 import {
   findCurrentComponent,
-  first,
   getComponentTransform,
-  last,
   updateComponentTransform,
 } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Center } from "@/components/ui/center";
-import { Component, MatrixIndex, PaintMatrix } from "@/type/store";
+import { Component, MatrixIndex } from "@/type/store";
 import { Button, ButtonGroup } from "@/components/ui/button";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import FrameList from "./FrameList";
 import uuid from "react-native-uuid";
-import { Pressable } from "react-native";
+import { Pressable, ScrollView } from "react-native";
+import { HStack } from "@/components/ui/hstack";
 
 const ExpandComponent = () => {
   const queryClient = useQueryClient();
@@ -75,6 +79,8 @@ const ExpandComponent = () => {
 
   const [paintWeight, setPaintWeight] = React.useState<number>(PAINT_WEIGHT[0]);
 
+  const [colorSelect, setColorSelect] = React.useState<string>(COLOR[0][1]);
+
   const [isBlurVisible, setIsBlurVisible] = React.useState<boolean>(false);
 
   const [isTemperatureVisible, setIsTemperatureVisible] =
@@ -86,6 +92,9 @@ const ExpandComponent = () => {
   const [isFrameVisible, setIsFrameVisible] = React.useState<boolean>(false);
 
   const [isPntLineWeightVisible, setIsPntLineWeightVisible] =
+    React.useState<boolean>(false);
+
+  const [isPntColorVisible, setIsPntColorVisible] =
     React.useState<boolean>(false);
 
   const isComponentExpand = useSharedValue(0);
@@ -107,11 +116,13 @@ const ExpandComponent = () => {
       );
       setOpacity(getComponentTransform(component, MatrixIndex.OPACITY) * 100);
       setPaintWeight(component.params?.lastWeight ?? PAINT_WEIGHT[0]);
+      setColorSelect(component.params?.lastColor ?? COLOR[0][1]);
     } else {
       setBlur(0);
       setTemperature(0);
       setOpacity(0);
       setPaintWeight(PAINT_WEIGHT[0]);
+      setColorSelect(COLOR[0][1]);
     }
   }, [component]);
 
@@ -120,6 +131,7 @@ const ExpandComponent = () => {
     setIsTemperatureVisible(false);
     setIsOpacityVisible(false);
     setIsPntLineWeightVisible(false);
+    setIsPntColorVisible(false);
   };
 
   const closeTool = () => {
@@ -167,6 +179,7 @@ const ExpandComponent = () => {
       type: "PAINT",
       params: {
         lastWeight: PAINT_WEIGHT[0],
+        lastColor: COLOR[0][1],
       },
     };
     pushComponentToCurrentWorkspace(newComponent, queryClient);
@@ -260,49 +273,90 @@ const ExpandComponent = () => {
           )}
           {isPntLineWeightVisible && (
             <Box
-              style={{
-                ...(styles.toolContainer as any),
-                top: -PAINT_WEIGHT.length * 32,
-              }}
+              style={styles.toolContainer}
               className="bg-white rounded-xl shadow-md px-4 py-2"
             >
               <Box style={{ width: "100%" }}>
                 <Text>Kích cỡ</Text>
-                {PAINT_WEIGHT.map((weight) => {
-                  return (
-                    <Box
-                      key={`weight-${weight}`}
-                      style={{ width: "100%", height: 20 }}
-                      className={`mb-1 ${paintWeight === weight ? "bg-secondary-50" : "bg-white"} px-2`}
-                    >
-                      <Pressable
-                        onPress={() => {
-                          setPaintWeight(weight);
-                          updatePaintParams(queryClient, {
-                            lastWeight: weight,
-                          });
-                        }}
-                        style={{ flex: 1 }}
-                      >
-                        <Center className="flex-1">
-                          <Box
-                            style={{
-                              width: "100%",
-                              height: weight,
+                <Slider
+                  value={paintWeight}
+                  onValueChange={(value) => {
+                    setPaintWeight(value[0]);
+                    updatePaintParams(queryClient, {
+                      lastWeight: value[0],
+                    });
+                  }}
+                  minimumValue={MIN_PAINT_WEIGHT}
+                  maximumValue={MAX_PAINT_WEIGHT}
+                  containerStyle={{ width: "100%", height: verticalScale(35) }}
+                  step={PAINT_WEIGHT_STEP}
+                  minimumTrackTintColor="#7ccff8"
+                  maximumTrackTintColor="#d4d4d4"
+                />
+              </Box>
+            </Box>
+          )}
+          {isPntColorVisible && (
+            <Box
+              style={styles.toolContainer}
+              className="bg-white rounded-xl shadow-md px-4 py-2"
+            >
+              <Box style={{ width: "100%" }}>
+                <Text>Màu bút</Text>
+                <ScrollView horizontal>
+                  <HStack space="sm" className="p-2">
+                    {COLOR.map((colors, page) => (
+                      <HStack space="sm" key={page}>
+                        {colors.map((color) => (
+                          <Pressable
+                            key={color}
+                            onPress={() => {
+                              setColorSelect(color);
+                              updatePaintParams(queryClient, {
+                                lastColor: color,
+                              });
                             }}
-                            className="bg-primary-500 rounded-md"
-                          />
-                        </Center>
-                      </Pressable>
-                    </Box>
-                  );
-                })}
+                          >
+                            <Box
+                              style={{ width: scale(10), height: scale(10) }}
+                              className={`rounded-full shadow-md ${color === colorSelect ? "p-1" : ""}`}
+                            >
+                              <Box
+                                style={{
+                                  backgroundColor: color,
+                                }}
+                                className="rounded-full shadow-md flex-1"
+                              />
+                            </Box>
+                          </Pressable>
+                        ))}
+                      </HStack>
+                    ))}
+                  </HStack>
+                </ScrollView>
               </Box>
             </Box>
           )}
           <Animated.View style={[componentExpandStyle, styles.expandContainer]}>
             <Box className="bg-white flex-1 rounded-md p-2 shadow-md">
               <ButtonGroup flexDirection="row" className="flex-row px-2">
+                {component?.type === "PAINT" && (
+                  <Button
+                    variant="outline"
+                    className="border-0"
+                    onPress={() => {
+                      const preValue = isPntColorVisible;
+                      closeExpand();
+                      setIsPntColorVisible(!preValue);
+                    }}
+                  >
+                    <Ionicons
+                      name="color-palette-outline"
+                      size={24}
+                      color="black"
+                    />
+                  </Button>
+                )}
                 {component?.type === "PAINT" && (
                   <Button
                     variant="outline"

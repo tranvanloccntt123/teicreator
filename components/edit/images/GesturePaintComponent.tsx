@@ -9,7 +9,7 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle, useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
-import { GESTURE_Z_INDEX, PAINT_WEIGHT } from "@/constants/Workspace";
+import { COLOR, GESTURE_Z_INDEX, PAINT_WEIGHT } from "@/constants/Workspace";
 import usePositionXY from "@/hooks/usePosition";
 import {
   getComponentTransform,
@@ -49,10 +49,11 @@ const GesturePaintComponent: React.FC<{
       if (!isTranslateVisible.value) {
         kalmanX.current.clear();
         kalmanY.current.clear();
+        const color = component.params.lastColor ?? COLOR[0][1];
         const weight = component.params.lastWeight ?? PAINT_WEIGHT[0];
         const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
         const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
-        data.current.push([weight, x, y]);
+        data.current.push([color, weight, x, y]);
         updatePaintStatus(
           queryClient,
           `MOVE-TO-${x}-${y}`,

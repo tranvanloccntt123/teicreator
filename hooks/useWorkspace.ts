@@ -189,7 +189,10 @@ export const updatePaintParams = (
       const componentIndex: number = components.findIndex(
         (component) => component.id === oldData.componentEditingId
       );
-      components[componentIndex]["params"] = params;
+      components[componentIndex]["params"] = {
+        ...components[componentIndex]["params"],
+        ...params,
+      };
       return {
         ...oldData,
         components,

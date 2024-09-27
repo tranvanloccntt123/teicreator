@@ -19,6 +19,7 @@ export type PaintMatrix = Array<Array<number | string>>;
 
 export type PaintParams = {
   lastWeight?: number;
+  lastColor?: string;
 };
 
 export type Component<ListParams = Array<SharedValue<number>>> = {

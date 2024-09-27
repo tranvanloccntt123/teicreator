@@ -27,6 +27,9 @@ export const UP_PINK = [
 export const MAX_OPACITY = 100;
 export const MIN_OPACITY = 0;
 export const OPACITY_STEP = 1;
+export const MIN_PAINT_WEIGHT = 1;
+export const MAX_PAINT_WEIGHT = 50;
+export const PAINT_WEIGHT_STEP = 0.5;
 // R G B A
 // const colorMatrix = [
 //   1,0,0,0,0,
@@ -42,38 +45,44 @@ export const INIT_MATRIX = [0, 0, 1, 0, 0, 0, 1];
 
 export const PAINT_WEIGHT = [3, 5, 8, 9, 12, 11];
 
+export const PAINT_COLOR_POSITION = 0;
+
+export const PAINT_WEIGHT_POSITION = 1;
+
+export const PAINT_START_POSITION = 2;
+
 export const COLOR = [
   [
-    '#FFFFFF',
-    '#000000',
-    '#3897EF',
-    '#70BF50',
-    '#70BF50',
-    '#FC8D32',
-    '#EC4956',
-    '#D10869',
-    '#A007B7',
+    "#FFFFFF",
+    "#000000",
+    "#3897EF",
+    "#70BF50",
+    "#FFDD30",
+    "#FC8D32",
+    "#EC4956",
+    "#D10869",
+    "#A007B7",
   ],
   [
-    '#ED0013',
-    '#EC858E',
-    '#FFD1D3',
-    '#FFDAB4',
-    '#FFC282',
-    '#D18E46',
-    '#996439',
-    '#432324',
-    '#1B4828',
+    "#ED0013",
+    "#EC858E",
+    "#FFD1D3",
+    "#FFDAB4",
+    "#FFC282",
+    "#D18E46",
+    "#996439",
+    "#432324",
+    "#1B4828",
   ],
   [
-    '#262626',
-    '#363636',
-    '#555555',
-    '#727272',
-    '#999999',
-    '#B2B2B2',
-    '#C6C6C6',
-    '#DADADA',
-    '#E2E2E2',
+    "#262626",
+    "#363636",
+    "#555555",
+    "#727272",
+    "#999999",
+    "#B2B2B2",
+    "#C6C6C6",
+    "#DADADA",
+    "#E2E2E2",
   ],
 ];

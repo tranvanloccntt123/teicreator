@@ -1,7 +1,12 @@
 import React from "react";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
-import { EXPAND_FRAME_Z_INDEX } from "@/constants/Workspace";
+import {
+  EXPAND_FRAME_Z_INDEX,
+  PAINT_COLOR_POSITION,
+  PAINT_START_POSITION,
+  PAINT_WEIGHT_POSITION,
+} from "@/constants/Workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import useCurrentWorkspace, { setCurrentComponent } from "@/hooks/useWorkspace";
 import { FlatList, TouchableOpacity } from "react-native";
@@ -13,6 +18,8 @@ import {
   Picture,
   SkImage,
   Skia,
+  StrokeCap,
+  StrokeJoin,
   createPicture,
 } from "@shopify/react-native-skia";
 import { ScaledSheet, scale } from "react-native-size-matters";
@@ -53,21 +60,35 @@ const FrameItem: React.FC<{
       const paint = Skia.Paint();
       paint.setBlendMode(BlendMode.Multiply);
       paint.setColor(Skia.Color("#000000"));
-      const path = Skia.Path.Make();
       listPath.forEach((line) => {
-        for (let i = 0; i < line.length - 2; i += 2) {
-          const x = line[i] as number * rootSize.scale;
-          const y = line[i + 1] as number * rootSize.scale;
-          if (i === 0) {
-            path.moveTo(x, y);
-            continue;
+        const path = Skia.Path.Make();
+        const color = line[PAINT_COLOR_POSITION] as string;
+        const weight = line[PAINT_WEIGHT_POSITION] as number;
+        paint.setColor(Skia.Color(color));
+        if (line.length === 4) {
+          const x = (line[PAINT_START_POSITION] as number) * rootSize.scale;
+          const y = (line[PAINT_START_POSITION + 1] as number) * rootSize.scale;
+          path.addCircle(x, y, weight * rootSize.scale);
+        } else {
+          for (let i = PAINT_START_POSITION; i < line.length - 2; i += 2) {
+            const x = (line[i] as number) * rootSize.scale;
+            const y = (line[i + 1] as number) * rootSize.scale;
+            if (i === PAINT_START_POSITION) {
+              path.moveTo(x, y);
+              continue;
+            }
+            path.lineTo(x, y);
           }
-          path.lineTo(x, y);
+          path.stroke({
+            width: weight * rootSize.scale,
+            cap: StrokeCap.Round,
+            join: StrokeJoin.Round,
+          });
         }
+
+        path.close();
+        canvas.drawPath(path, paint);
       });
-      path.stroke({ width: 1 });
-      path.close();
-      canvas.drawPath(path, paint);
     });
     return (
       <TouchableOpacity

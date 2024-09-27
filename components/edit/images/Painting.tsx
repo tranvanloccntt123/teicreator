@@ -13,6 +13,11 @@ import {
 } from "@shopify/react-native-skia";
 import { useWindowDimensions } from "react-native";
 import { SharedValue, runOnJS, useDerivedValue } from "react-native-reanimated";
+import {
+  PAINT_COLOR_POSITION,
+  PAINT_START_POSITION,
+  PAINT_WEIGHT_POSITION,
+} from "@/constants/Workspace";
 
 const Painting: React.FC<{
   component: Component;
@@ -26,21 +31,23 @@ const Painting: React.FC<{
   const picture = createPicture((canvas) => {
     const listPath = component.data as PaintMatrix;
     const paint = Skia.Paint();
-    paint.setBlendMode(BlendMode.Multiply);
-    paint.setColor(Skia.Color("#000000"));
-    paint.setAlphaf(opacity);
     listPath.forEach((line) => {
+      paint.setBlendMode(BlendMode.Src);
+      paint.setAlphaf(opacity);
       const path = Skia.Path.Make();
-      const weight = line[0] as number;
-      if (line.length === 3) {
-        const x = (line[1] as number) * rootSize.scale.value;
-        const y = (line[2] as number) * rootSize.scale.value;
+      const color = line[PAINT_COLOR_POSITION] as string;
+      const weight = line[PAINT_WEIGHT_POSITION] as number;
+      paint.setColor(Skia.Color(color));
+      if (line.length === 4) {
+        const x = (line[PAINT_START_POSITION] as number) * rootSize.scale.value;
+        const y =
+          (line[PAINT_START_POSITION + 1] as number) * rootSize.scale.value;
         path.addCircle(x, y, weight * rootSize.scale.value);
       } else {
-        for (let i = 1; i < line.length - 2; i += 2) {
+        for (let i = PAINT_START_POSITION; i < line.length - 2; i += 2) {
           const x = (line[i] as number) * rootSize.scale.value;
           const y = (line[i + 1] as number) * rootSize.scale.value;
-          if (i === 1) {
+          if (i === PAINT_START_POSITION) {
             path.moveTo(x, y);
             continue;
           }
