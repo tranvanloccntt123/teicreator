@@ -8,6 +8,7 @@ export {
   rootTranslate,
   temperatureUp,
   createNewWorspace,
+  paintLinePath,
 } from "./workspace";
 
 export {

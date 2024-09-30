@@ -4,6 +4,8 @@ import {
   Component,
   FitSize,
   MatrixIndex,
+  PaintMatrix,
+  PaintType,
   Vector,
   WorkspaceBase,
   WorkspaceSize,
@@ -11,8 +13,23 @@ import {
 import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
 import { SharedValue, clamp } from "react-native-reanimated";
-import { TEMPERATURE_UP } from "@/constants/Workspace";
-import { AlphaType, ColorType, SkImage } from "@shopify/react-native-skia";
+import {
+  PAINT_BLEND_MODE,
+  PAINT_COLOR_POSITION,
+  PAINT_PEN_TYPE,
+  PAINT_START_POSITION,
+  PAINT_STROKE_CAP,
+  PAINT_STROKE_JOIN,
+  PAINT_WEIGHT_POSITION,
+  TEMPERATURE_UP,
+} from "@/constants/Workspace";
+import {
+  AlphaType,
+  ColorType,
+  SkCanvas,
+  SkImage,
+  Skia,
+} from "@shopify/react-native-skia";
 
 export const getComponentTransform = (
   component: Component,
@@ -94,4 +111,48 @@ export const temperatureUp = (matrixFilter: Array<number>, percent: number) => {
     _matrixFilter[index] += color * percent;
   });
   return _matrixFilter;
+};
+
+export const paintLinePath = (
+  component: Component,
+  canvas: SkCanvas,
+  options?: { scale: number; opacity: number }
+) => {
+  const listPath = component.data as PaintMatrix;
+  const paint = Skia.Paint();
+  listPath.forEach((line) => {
+    const color = line[PAINT_COLOR_POSITION] as string;
+    const weight = line[PAINT_WEIGHT_POSITION] as number;
+    const paintType = line[PAINT_PEN_TYPE] as PaintType;
+    paint.setBlendMode(PAINT_BLEND_MODE[paintType]);
+    const path = Skia.Path.Make();
+    paint.setColor(Skia.Color(color));
+    if (options?.opacity !== undefined) {
+      paint.setAlphaf(options.opacity);
+    }
+    if (line.length === PAINT_START_POSITION + 2) {
+      const x = (line[PAINT_START_POSITION] as number) * (options?.scale ?? 1);
+      const y =
+        (line[PAINT_START_POSITION + 1] as number) * (options?.scale ?? 1);
+      path.addCircle(x, y, (weight / 1.8) * (options?.scale ?? 1));
+    } else {
+      for (let i = PAINT_START_POSITION; i < line.length - 2; i += 2) {
+        const x = (line[i] as number) * (options?.scale ?? 1);
+        const y = (line[i + 1] as number) * (options?.scale ?? 1);
+        if (i === PAINT_START_POSITION) {
+          path.moveTo(x, y);
+          continue;
+        }
+        path.lineTo(x, y);
+      }
+      path.stroke({
+        width: weight * (options?.scale ?? 1),
+        cap: PAINT_STROKE_CAP[paintType],
+        join: PAINT_STROKE_JOIN[paintType],
+      });
+    }
+
+    path.close();
+    canvas.drawPath(path, paint);
+  });
 };

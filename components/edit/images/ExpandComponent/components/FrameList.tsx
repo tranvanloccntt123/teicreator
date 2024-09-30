@@ -1,31 +1,22 @@
 import React from "react";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
-import {
-  EXPAND_FRAME_Z_INDEX,
-  PAINT_BLEND_MODE,
-  PAINT_COLOR_POSITION,
-  PAINT_PEN_TYPE,
-  PAINT_START_POSITION,
-  PAINT_STROKE_CAP,
-  PAINT_STROKE_JOIN,
-  PAINT_WEIGHT_POSITION,
-} from "@/constants/Workspace";
+import { EXPAND_FRAME_Z_INDEX } from "@/constants/Workspace";
 import useCurrentWorkspace, { setCurrentComponent } from "@/hooks/useWorkspace";
 import { FlatList, TouchableOpacity } from "react-native";
-import { Component, PaintMatrix, PaintType, WorkspaceSize } from "@/type/store";
+import { Component, WorkspaceSize } from "@/type/store";
 import {
   Canvas,
   Image,
   Picture,
   SkImage,
-  Skia,
   createPicture,
 } from "@shopify/react-native-skia";
 import { ScaledSheet, scale } from "react-native-size-matters";
-import { fitComponentSize } from "@/utils";
+import { fitComponentSize, paintLinePath } from "@/utils";
 import { Center } from "@/components/ui/center";
 import useColorSchemeStyle from "@/hooks/useColorSchemeStyles";
+import { useDerivedValue } from "react-native-reanimated";
 
 const FRAME_SIZE = scale(70);
 
@@ -44,58 +35,27 @@ const FrameItem: React.FC<{
       }),
     [component]
   );
-  const rootSize = React.useMemo(
-    () =>
-      fitComponentSize({
-        imageHeight: workspaceSize.height,
-        imageWidth: workspaceSize.width,
-        widthDimensions: _FRAME_SIZE,
-        heightDimensions: _FRAME_SIZE,
-      }),
-    [component]
+  const rootSize = useDerivedValue(() =>
+    fitComponentSize({
+      imageHeight: workspaceSize.height,
+      imageWidth: workspaceSize.width,
+      widthDimensions: _FRAME_SIZE,
+      heightDimensions: _FRAME_SIZE,
+    })
   );
   if (component.type === "PAINT") {
-    const picture = createPicture((canvas) => {
-      const listPath = component.data as PaintMatrix;
-      const paint = Skia.Paint();
-      listPath.forEach((line) => {
-        const color = line[PAINT_COLOR_POSITION] as string;
-        const weight = line[PAINT_WEIGHT_POSITION] as number;
-        const paintType = line[PAINT_PEN_TYPE] as PaintType;
-        paint.setBlendMode(PAINT_BLEND_MODE[paintType]);
-        const path = Skia.Path.Make();
-        paint.setColor(Skia.Color(color));
-        if (line.length === PAINT_START_POSITION + 2) {
-          const x = (line[PAINT_START_POSITION] as number) * rootSize.scale;
-          const y = (line[PAINT_START_POSITION + 1] as number) * rootSize.scale;
-          path.addCircle(x, y, (weight / 1.8) * rootSize.scale);
-        } else {
-          for (let i = PAINT_START_POSITION; i < line.length - 2; i += 2) {
-            const x = (line[i] as number) * rootSize.scale;
-            const y = (line[i + 1] as number) * rootSize.scale;
-            if (i === PAINT_START_POSITION) {
-              path.moveTo(x, y);
-              continue;
-            }
-            path.lineTo(x, y);
-          }
-          path.stroke({
-            width: weight * rootSize.scale,
-            cap: PAINT_STROKE_CAP[paintType],
-            join: PAINT_STROKE_JOIN[paintType],
-          });
-        }
-
-        path.close();
-        canvas.drawPath(path, paint);
-      });
-    });
+    const picture = createPicture((canvas) =>
+      paintLinePath(component, canvas, {
+        scale: rootSize.value.scale,
+        opacity: 1,
+      })
+    );
     return (
       <TouchableOpacity
         style={{ marginBottom: 15 }}
         onPress={() => setCurrentComponent(component.id)}
       >
-        <Center style={styles.frameItemContainer} className="bg-white">
+        <Center style={styles.frameItemContainer} className="bg-white border-2">
           <Canvas style={{ width: _FRAME_SIZE, height: _FRAME_SIZE }}>
             <Picture picture={picture} />
           </Canvas>
