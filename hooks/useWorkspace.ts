@@ -2,12 +2,11 @@ import { QueryKeys } from "@/constants/QueryKeys";
 import {
   Component,
   DraftWorkspace,
-  MatrixIndex,
+  FitSize,
   PaintMatrix,
   PaintParams,
   Workspace,
 } from "@/type/store";
-import { getComponentTransform, updateComponentTransform } from "@/utils";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 
 const useCurrentWorkspace = () =>
@@ -114,45 +113,23 @@ export const deleteComponentById = (id: string, queryClient: QueryClient) => {
 };
 
 export const updateCurrentWorkspace = (
-  id: string,
   params: {
-    blur?: number;
-    temperatureUpPercent?: number;
-    paintData?: PaintMatrix;
+    viewResize?: FitSize;
   },
   queryClient: QueryClient
 ) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => {
-      const components = oldData?.components || [];
-      for (const index in components) {
-        if (components[index].id === id) {
-          updateComponentTransform(
-            components[index],
-            MatrixIndex.BLUR,
-            params.blur ??
-              getComponentTransform(components[index], MatrixIndex.BLUR)
-          );
-          updateComponentTransform(
-            components[index],
-            MatrixIndex.TEMPERATURE_UP,
-            params.temperatureUpPercent ??
-              getComponentTransform(
-                components[index],
-                MatrixIndex.TEMPERATURE_UP
-              )
-          );
-          if (params.paintData && components[index].type === "PAINT") {
-            components[index].data = params.paintData;
-          }
-          break;
-        }
+      const workspaceViewSize = oldData.viewResize;
+      if (params?.viewResize) {
+        workspaceViewSize.height.value = params.viewResize.height;
+        workspaceViewSize.width.value = params.viewResize.width;
+        workspaceViewSize.scale.value = params.viewResize.scale;
       }
       return {
         ...oldData,
-        components,
-        componentEditingId: id,
+        viewResize: workspaceViewSize,
       };
     }
   );

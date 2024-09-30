@@ -3,7 +3,6 @@ import { Group, RoundedRect, size } from "@shopify/react-native-skia";
 import { useWindowDimensions } from "react-native";
 import { Workspace } from "@/type/store";
 import { scale } from "react-native-size-matters";
-import useCurrentWorkspace from "@/hooks/useWorkspace";
 import { useDerivedValue } from "react-native-reanimated";
 
 const RoundRootComponent: React.FC<{ workspace: Workspace }> = ({
@@ -11,7 +10,7 @@ const RoundRootComponent: React.FC<{ workspace: Workspace }> = ({
 }) => {
   const { width, height } = useWindowDimensions();
 
-  const rotateOrigin = React.useMemo(
+  const origin = React.useMemo(
     () => ({
       x: workspace.size.width / 2,
       y: workspace.size.height / 2,
@@ -23,16 +22,26 @@ const RoundRootComponent: React.FC<{ workspace: Workspace }> = ({
     () => (width - workspace.viewResize.width.value) / 2
   );
 
-  const y = useDerivedValue(() => (height - workspace.viewResize.height.value) / 2);
+  const y = useDerivedValue(
+    () => (height - workspace.viewResize.height.value) / 2
+  );
+
+  const componentWidth = useDerivedValue(
+    () => workspace.viewResize.width.value
+  );
+
+  const componentHeight = useDerivedValue(
+    () => workspace.viewResize.height.value
+  );
 
   return (
-    <Group color="white" origin={rotateOrigin}>
+    <Group color="white" origin={origin}>
       <RoundedRect
         x={x}
         y={y}
         r={scale(5)}
-        width={workspace.viewResize.width}
-        height={workspace.viewResize.height}
+        width={componentWidth}
+        height={componentHeight}
       />
     </Group>
   );

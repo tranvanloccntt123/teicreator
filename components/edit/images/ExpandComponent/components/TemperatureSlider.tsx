@@ -11,9 +11,9 @@ import { verticalScale } from "react-native-size-matters";
 import { Slider } from "@miblanchard/react-native-slider";
 import { getComponentTransform, updateComponentTransform } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
-const TemperatureSlider: React.FC<{ component?: Component }> = ({
-  component,
-}) => {
+const TemperatureSlider: React.FC<{
+  component?: Component;
+}> = ({ component }) => {
   const [temperature, setTemperature] = React.useState<number>(0);
   React.useEffect(() => {
     setTemperature(

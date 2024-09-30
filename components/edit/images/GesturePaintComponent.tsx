@@ -13,7 +13,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { ViewStyle, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
 import { COLOR, GESTURE_Z_INDEX, PAINT_WEIGHT } from "@/constants/Workspace";
 import usePositionXY from "@/hooks/usePosition";
@@ -38,8 +38,16 @@ const GesturePaintComponent: React.FC<{
   const isTranslateVisible = useSharedValue(false);
   const data = React.useRef(component.data as PaintMatrix);
   const prevTranslate = usePositionXY({
-    x: getComponentTransform(component, MatrixIndex.TRANSLATE_X),
-    y: getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
+    x: getComponentTransform(
+      component,
+      MatrixIndex.TRANSLATE_X,
+      rootSize.scale.value
+    ),
+    y: getComponentTransform(
+      component,
+      MatrixIndex.TRANSLATE_Y,
+      rootSize.scale.value
+    ),
   });
 
   const rootX = useDerivedValue(() => (width - rootSize.width.value) / 2);
@@ -113,31 +121,29 @@ const GesturePaintComponent: React.FC<{
       updateComponentTransform(
         component,
         MatrixIndex.TRANSLATE_X,
-        prevTranslate.x.value + event.translationX
+        prevTranslate.x.value + event.translationX,
+        rootSize.scale.value
       );
       updateComponentTransform(
         component,
         MatrixIndex.TRANSLATE_Y,
-        prevTranslate.y.value + event.translationY
+        prevTranslate.y.value + event.translationY,
+        rootSize.scale.value
       );
     })
     .onEnd(() => {})
     .runOnJS(true);
 
-  const size = React.useMemo(
-    () => resizeComponentFitWorkspace(component, rootSize.scale),
-    [component]
+  const size = useDerivedValue(() =>
+    resizeComponentFitWorkspace(component, rootSize.scale)
   );
 
-  const componentSize: ViewStyle = React.useMemo(
-    () => ({
-      width: size?.width || 1,
-      height: size?.height || 1,
-      position: "absolute",
-      zIndex: GESTURE_Z_INDEX + index,
-    }),
-    [component]
-  );
+  const componentSize = useAnimatedStyle(() => ({
+    width: size?.value?.width || 1,
+    height: size?.value?.height || 1,
+    position: "absolute",
+    zIndex: GESTURE_Z_INDEX + index,
+  }));
 
   const translateStyle = useAnimatedStyle(() => ({
     transform: [

@@ -8,7 +8,6 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { ViewStyle } from "react-native";
 import { Box } from "@/components/ui/box";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -32,9 +31,8 @@ const GestureResizeComponent: React.FC<{
   component: Component;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
-  const size = React.useMemo(
-    () => resizeComponentFitWorkspace(component, rootSize.scale),
-    [component]
+  const size = useDerivedValue(() =>
+    resizeComponentFitWorkspace(component, rootSize.scale)
   );
   const prevTranslate = usePositionXY({ x: 0, y: 0 });
   const prevScale = useSharedValue(
@@ -45,25 +43,25 @@ const GestureResizeComponent: React.FC<{
       x: resizePosition({
         ...component,
         size: {
-          width: size.width,
-          height: size.height,
+          width: size.value.width,
+          height: size.value.height,
         },
       }).x,
       y: resizePosition({
         ...component,
         size: {
-          width: size.width,
-          height: size.height,
+          width: size.value.width,
+          height: size.value.height,
         },
       }).y,
     };
   });
-  const position: ViewStyle = {
+  const position = useAnimatedStyle(() => ({
     position: "absolute",
-    top: size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: size.width / 2 - BTN_OPTION_SIZE / 2,
+    top: size.value.height / 2 - BTN_OPTION_SIZE / 2,
+    left: size.value.width / 2 - BTN_OPTION_SIZE / 2,
     zIndex: GESTURE_Z_INDEX + 2,
-  };
+  }));
   const pan = Gesture.Pan()
     .onBegin(() => {
       prevTranslate.x.value = positionXY.value.x;
@@ -81,7 +79,7 @@ const GestureResizeComponent: React.FC<{
         { x: prevTranslate.x.value, y: prevTranslate.y.value }
       );
       const distancePercent =
-        (distance / size.width + distance / size.height) / 2;
+        (distance / size.value.width + distance / size.value.height) / 2;
       const oldDistance = distanceBetween2Vector(
         { x: 0, y: 0 },
         { x: prevTranslate.x.value, y: prevTranslate.y.value }

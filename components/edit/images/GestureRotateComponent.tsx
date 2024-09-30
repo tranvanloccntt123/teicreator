@@ -5,10 +5,8 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
-  withTiming,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { ViewStyle } from "react-native";
 import { Box } from "@/components/ui/box";
 import Feather from "@expo/vector-icons/Feather";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
@@ -28,17 +26,16 @@ const GestureRotateComponent: React.FC<{
   step: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, step, rootSize }) => {
-  const size = React.useMemo(
-    () => resizeComponentFitWorkspace(component, rootSize.scale),
-    [component]
+  const size = useDerivedValue(() =>
+    resizeComponentFitWorkspace(component, rootSize.scale)
   );
   const R = useDerivedValue(
     () =>
       componentSize({
         ...component,
         size: {
-          width: size.width,
-          height: size.height,
+          width: size.value.width,
+          height: size.value.height,
         },
       }).width /
         2 +
@@ -55,12 +52,12 @@ const GestureRotateComponent: React.FC<{
     )
   );
 
-  const position: ViewStyle = {
+  const position = useAnimatedStyle(() => ({
     position: "absolute",
-    top: size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: size.width / 2 - BTN_OPTION_SIZE / 2,
+    top: size.value.height / 2 - BTN_OPTION_SIZE / 2,
+    left: size.value.width / 2 - BTN_OPTION_SIZE / 2,
     zIndex: GESTURE_Z_INDEX + 1,
-  };
+  }));
 
   const pan = Gesture.Pan()
     .onBegin(() => {

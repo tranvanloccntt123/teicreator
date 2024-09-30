@@ -8,7 +8,9 @@ import { Slider } from "@miblanchard/react-native-slider";
 import { getComponentTransform, updateComponentTransform } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 
-const BlurSlider: React.FC<{ component?: Component }> = ({ component }) => {
+const BlurSlider: React.FC<{
+  component?: Component;
+}> = ({ component }) => {
   const [blur, setBlur] = React.useState<number>(0);
   React.useEffect(() => {
     setBlur(component ? getComponentTransform(component, MatrixIndex.BLUR) : 0);

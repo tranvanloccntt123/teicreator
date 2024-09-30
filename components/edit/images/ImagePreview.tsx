@@ -9,7 +9,7 @@ import {
   SkImage,
 } from "@shopify/react-native-skia";
 import { Component, FitSize, MatrixIndex } from "@/type/store";
-import { ImageURISource, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { SharedValue, useDerivedValue } from "react-native-reanimated";
 import {
   getComponentTransform,
@@ -24,9 +24,8 @@ const ImagePreviewFromBase64: React.FC<{
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
   const { width, height } = useWindowDimensions();
-  const size = React.useMemo(
-    () => resizeComponentFitWorkspace(component, rootSize.scale),
-    [component]
+  const size = useDerivedValue(() =>
+    resizeComponentFitWorkspace(component, rootSize.scale)
   );
   const contentTransform = useDerivedValue(
     (): Transforms3d => [
@@ -43,7 +42,12 @@ const ImagePreviewFromBase64: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).x + getComponentTransform(component, MatrixIndex.TRANSLATE_X),
+          }).x +
+          getComponentTransform(
+            component,
+            MatrixIndex.TRANSLATE_X,
+            rootSize.scale.value
+          ),
       },
       {
         translateY:
@@ -52,7 +56,12 @@ const ImagePreviewFromBase64: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).y + getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
+          }).y +
+          getComponentTransform(
+            component,
+            MatrixIndex.TRANSLATE_Y,
+            rootSize.scale.value
+          ),
       },
     ]
   );
@@ -79,22 +88,25 @@ const ImagePreviewFromBase64: React.FC<{
     getComponentTransform(component, MatrixIndex.OPACITY)
   );
 
+  const imageWidth = useDerivedValue(() => size.value.width);
+
+  const imageHeight = useDerivedValue(() => size.value.height);
+
+  const origin = useDerivedValue(() => ({
+    x: size.value.width / 2,
+    y: size.value.height / 2,
+  }));
+
   return (
     <Group transform={translateTransform} opacity={opacity}>
-      <Group
-        origin={{
-          x: size.width / 2,
-          y: size.height / 2,
-        }}
-        transform={contentTransform}
-      >
+      <Group origin={origin} transform={contentTransform}>
         <Image
           image={component.data as SkImage}
           fit="contain"
           x={0}
           y={0}
-          width={size.width || 1}
-          height={size.height || 1}
+          width={imageWidth}
+          height={imageHeight}
         >
           <Blur blur={blur} />
           <ColorMatrix matrix={colorMatrix} />

@@ -4,10 +4,11 @@ import Animated, {
   SharedValue,
   clamp,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { ViewStyle, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
 import { ScaledSheet } from "react-native-size-matters";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
@@ -35,9 +36,8 @@ const TrashComponent: React.FC<{
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
   const queryClient = useQueryClient();
-  const size = React.useMemo(
-    () => resizeComponentFitWorkspace(component, rootSize.scale),
-    [component]
+  const size = useDerivedValue(() =>
+    resizeComponentFitWorkspace(component, rootSize.scale)
   );
   const deleteCurrentComponent = () => {
     deleteComponentById(component.id, queryClient);
@@ -47,12 +47,12 @@ const TrashComponent: React.FC<{
       deleteCurrentComponent();
     })
     .runOnJS(true);
-  const position: ViewStyle = {
+  const position = useAnimatedStyle(() => ({
     position: "absolute",
-    top: size.height / 2 - BTN_OPTION_SIZE / 2,
-    left: size.width / 2 - BTN_OPTION_SIZE / 2,
+    top: size.value.height / 2 - BTN_OPTION_SIZE / 2,
+    left: size.value.width / 2 - BTN_OPTION_SIZE / 2,
     zIndex: GESTURE_Z_INDEX + 2,
-  };
+  }));
   return (
     <GestureDetector gesture={tap}>
       <Animated.View style={[position]}>
@@ -71,11 +71,19 @@ const GestureComponent: React.FC<{
 }> = ({ component, index, rootSize }) => {
   const { width, height } = useWindowDimensions();
   const prevScale = useSharedValue(
-    getComponentTransform(component, MatrixIndex.SCALE)
+    getComponentTransform(component, MatrixIndex.SCALE, rootSize.scale.value)
   );
   const prevTranslate = usePositionXY({
-    x: getComponentTransform(component, MatrixIndex.TRANSLATE_X),
-    y: getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
+    x: getComponentTransform(
+      component,
+      MatrixIndex.TRANSLATE_X,
+      rootSize.scale.value
+    ),
+    y: getComponentTransform(
+      component,
+      MatrixIndex.TRANSLATE_Y,
+      rootSize.scale.value
+    ),
   });
   const prevRotate = useSharedValue(
     getComponentTransform(component, MatrixIndex.ROTATE)
@@ -89,7 +97,8 @@ const GestureComponent: React.FC<{
       updateComponentTransform(
         component,
         MatrixIndex.SCALE,
-        clamp(prevScale.value * event.scale, MIN_SCALE, MAX_SCALE)
+        clamp(prevScale.value * event.scale, MIN_SCALE, MAX_SCALE),
+        rootSize.scale.value
       );
     })
     .runOnJS(true);
@@ -98,23 +107,27 @@ const GestureComponent: React.FC<{
     .onBegin(() => {
       prevTranslate.x.value = getComponentTransform(
         component,
-        MatrixIndex.TRANSLATE_X
+        MatrixIndex.TRANSLATE_X,
+        rootSize.scale.value
       );
       prevTranslate.y.value = getComponentTransform(
         component,
-        MatrixIndex.TRANSLATE_Y
+        MatrixIndex.TRANSLATE_Y,
+        rootSize.scale.value
       );
     })
     .onUpdate((event) => {
       updateComponentTransform(
         component,
         MatrixIndex.TRANSLATE_X,
-        prevTranslate.x.value + event.translationX
+        prevTranslate.x.value + event.translationX,
+        rootSize.scale.value
       );
       updateComponentTransform(
         component,
         MatrixIndex.TRANSLATE_Y,
-        prevTranslate.y.value + event.translationY
+        prevTranslate.y.value + event.translationY,
+        rootSize.scale.value
       );
     })
     .runOnJS(true);
@@ -133,20 +146,16 @@ const GestureComponent: React.FC<{
 
   const race = Gesture.Exclusive(Gesture.Simultaneous(pinch, pan, rotation));
 
-  const size = React.useMemo(
-    () => resizeComponentFitWorkspace(component, rootSize.scale),
-    [component]
+  const size = useDerivedValue(() =>
+    resizeComponentFitWorkspace(component, rootSize.scale)
   );
 
-  const componentSize: ViewStyle = React.useMemo(
-    () => ({
-      width: size?.width || 1,
-      height: size?.height || 1,
-      position: "absolute",
-      zIndex: GESTURE_Z_INDEX + index,
-    }),
-    [component]
-  );
+  const componentSize = useAnimatedStyle(() => ({
+    width: size?.value?.width || 1,
+    height: size?.value?.height || 1,
+    position: "absolute",
+    zIndex: GESTURE_Z_INDEX + index,
+  }));
 
   const translateStyle = useAnimatedStyle(() => ({
     transform: [
@@ -157,7 +166,12 @@ const GestureComponent: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).x + getComponentTransform(component, MatrixIndex.TRANSLATE_X),
+          }).x +
+          getComponentTransform(
+            component,
+            MatrixIndex.TRANSLATE_X,
+            rootSize.scale.value
+          ),
       },
       {
         translateY:
@@ -166,7 +180,12 @@ const GestureComponent: React.FC<{
             height,
             viewHeight: rootSize.height.value,
             viewWidth: rootSize.width.value,
-          }).y + getComponentTransform(component, MatrixIndex.TRANSLATE_Y),
+          }).y +
+          getComponentTransform(
+            component,
+            MatrixIndex.TRANSLATE_Y,
+            rootSize.scale.value
+          ),
       },
     ] as never,
   }));

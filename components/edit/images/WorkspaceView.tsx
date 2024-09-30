@@ -5,12 +5,17 @@ import ImagePreviewFromBase64 from "./ImagePreview";
 import { useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
 import { scale, verticalScale } from "react-native-size-matters";
-import useCurrentWorkspace from "@/hooks/useWorkspace";
+import useCurrentWorkspace, {
+  updateCurrentWorkspace,
+} from "@/hooks/useWorkspace";
 import RoundRootComponent from "./RoundRootComponent";
 import { fitComponentSize } from "@/utils";
 import Painting from "./Painting";
+import { useQueryClient } from "@tanstack/react-query";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();
+
+  const queryClient = useQueryClient();
 
   const { data: workspace } = useCurrentWorkspace();
 
@@ -29,9 +34,7 @@ const WorkspaceView: React.FC<object> = () => {
       widthDimensions: width - scale(15),
       heightDimensions: height - verticalScale(50),
     });
-    workspace.viewResize.width.value = fitRootView.width;
-    workspace.viewResize.height.value = fitRootView.height;
-    workspace.viewResize.scale.value = fitRootView.scale;
+    updateCurrentWorkspace({ viewResize: fitRootView }, queryClient);
   }, [workspace, width, height]);
 
   return (

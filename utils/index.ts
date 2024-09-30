@@ -277,15 +277,17 @@ export const rootTranslate = ({
 
 export const getComponentTransform = (
   component: Component,
-  transform: MatrixIndex
-) => component.matrix[transform].value;
+  transform: MatrixIndex,
+  scale?: number
+) => component.matrix[transform].value * (scale ?? 1);
 
 export const updateComponentTransform = (
   component: Component,
   transform: MatrixIndex,
-  value: number
+  value: number,
+  scale?: number
 ) => {
-  component.matrix[transform].value = value;
+  component.matrix[transform].value = value / (scale ?? 1);
 };
 
 export const scalePathData = (pathData: string, scale: number): string => {

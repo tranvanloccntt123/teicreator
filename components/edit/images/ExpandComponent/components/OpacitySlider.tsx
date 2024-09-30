@@ -8,7 +8,9 @@ import { Slider } from "@miblanchard/react-native-slider";
 import { getComponentTransform, updateComponentTransform } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 
-const OpacitySlider: React.FC<{ component?: Component }> = ({ component }) => {
+const OpacitySlider: React.FC<{
+  component?: Component;
+}> = ({ component }) => {
   const [opacity, setOpacity] = React.useState<number>(0);
   React.useEffect(() => {
     setOpacity(
