@@ -5,9 +5,13 @@ const baseStyle = isWeb
   ? 'font-sans tracking-sm my-0 bg-transparent border-0 box-border display-inline list-none margin-0 padding-0 position-relative text-start no-underline whitespace-pre-wrap word-wrap-break-word'
   : '';
 
+export type TTextProps = {
+  schemeDisabled?: boolean;
+}
+
 export const textStyle = tva({
   base: `text-typography-700 font-body ${baseStyle}`,
-
+  
   variants: {
     isTruncated: {
       true: 'web:truncate',

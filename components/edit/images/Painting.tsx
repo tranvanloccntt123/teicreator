@@ -1,5 +1,11 @@
 import React from "react";
-import { Component, FitSize, MatrixIndex, PaintMatrix } from "@/type/store";
+import {
+  Component,
+  FitSize,
+  MatrixIndex,
+  PaintMatrix,
+  PaintType,
+} from "@/type/store";
 import { rootTranslate } from "@/utils";
 import {
   BlendMode,
@@ -14,8 +20,12 @@ import {
 import { useWindowDimensions } from "react-native";
 import { SharedValue, runOnJS, useDerivedValue } from "react-native-reanimated";
 import {
+  PAINT_BLEND_MODE,
   PAINT_COLOR_POSITION,
+  PAINT_PEN_TYPE,
   PAINT_START_POSITION,
+  PAINT_STROKE_CAP,
+  PAINT_STROKE_JOIN,
   PAINT_WEIGHT_POSITION,
 } from "@/constants/Workspace";
 
@@ -32,17 +42,18 @@ const Painting: React.FC<{
     const listPath = component.data as PaintMatrix;
     const paint = Skia.Paint();
     listPath.forEach((line) => {
-      paint.setBlendMode(BlendMode.Src);
-      paint.setAlphaf(opacity);
-      const path = Skia.Path.Make();
       const color = line[PAINT_COLOR_POSITION] as string;
       const weight = line[PAINT_WEIGHT_POSITION] as number;
+      const paintType = line[PAINT_PEN_TYPE] as PaintType;
+      paint.setBlendMode(PAINT_BLEND_MODE[paintType]);
+      const path = Skia.Path.Make();
       paint.setColor(Skia.Color(color));
-      if (line.length === 4) {
+      paint.setAlphaf(opacity);
+      if (line.length === PAINT_START_POSITION + 2) {
         const x = (line[PAINT_START_POSITION] as number) * rootSize.scale.value;
         const y =
           (line[PAINT_START_POSITION + 1] as number) * rootSize.scale.value;
-        path.addCircle(x, y, weight * rootSize.scale.value);
+        path.addCircle(x, y, (weight / 1.8) * rootSize.scale.value);
       } else {
         for (let i = PAINT_START_POSITION; i < line.length - 2; i += 2) {
           const x = (line[i] as number) * rootSize.scale.value;
@@ -55,8 +66,8 @@ const Painting: React.FC<{
         }
         path.stroke({
           width: weight * rootSize.scale.value,
-          cap: StrokeCap.Round,
-          join: StrokeJoin.Round,
+          cap: PAINT_STROKE_CAP[paintType],
+          join: PAINT_STROKE_JOIN[paintType],
         });
       }
 

@@ -1,5 +1,7 @@
 import { scale } from "react-native-size-matters";
 import * as d3Scale from "d3-scale";
+import { PaintType } from "@/type/store";
+import { BlendMode, StrokeCap, StrokeJoin } from "@shopify/react-native-skia";
 
 export const GESTURE_Z_INDEX = 4000;
 export const COMPONENT_Z_INDEX = 1000;
@@ -49,7 +51,29 @@ export const PAINT_COLOR_POSITION = 0;
 
 export const PAINT_WEIGHT_POSITION = 1;
 
-export const PAINT_START_POSITION = 2;
+export const PAINT_PEN_TYPE = 2;
+
+export const PAINT_START_POSITION = 3;
+
+export const PAINT_PEN_TYPE_LIST = [PaintType.PEN, PaintType.HIGH_LIGHT_PEN];
+
+export const PAINT_BLEND_MODE: Record<PaintType, BlendMode> = {
+  [PaintType.PEN]: BlendMode.Src,
+  [PaintType.HIGH_LIGHT_PEN]: BlendMode.Src,
+  [PaintType.TICK_PEN]: BlendMode.Src,
+};
+
+export const PAINT_STROKE_CAP: Record<PaintType, StrokeCap> = {
+  [PaintType.PEN]: StrokeCap.Round,
+  [PaintType.HIGH_LIGHT_PEN]: StrokeCap.Square,
+  [PaintType.TICK_PEN]: StrokeCap.Round,
+};
+
+export const PAINT_STROKE_JOIN: Record<PaintType, StrokeJoin> = {
+  [PaintType.PEN]: StrokeJoin.Round,
+  [PaintType.HIGH_LIGHT_PEN]: StrokeJoin.Miter,
+  [PaintType.TICK_PEN]: StrokeJoin.Round,
+};
 
 export const COLOR = [
   [

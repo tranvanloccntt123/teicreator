@@ -1,23 +1,10 @@
 import React from "react";
-import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
 import {
-  BLUR_STEP,
   TOOL_COMPONENT_Z_INDEX,
-  TEMPERATURE_UP_STEP,
-  MAX_BLUR,
-  MAX_TEMPERATURE_UP,
-  MIN_BLUR,
-  MIN_TEMPERATURE_UP,
-  MIN_OPACITY,
-  MAX_OPACITY,
-  OPACITY_STEP,
   EXPAND_COMPONENT_Z_INDEX,
   INIT_MATRIX,
   PAINT_WEIGHT,
-  MIN_PAINT_WEIGHT,
-  MAX_PAINT_WEIGHT,
-  PAINT_WEIGHT_STEP,
   COLOR,
 } from "@/constants/Workspace";
 import Animated, {
@@ -29,21 +16,15 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { ScaledSheet, scale, verticalScale } from "react-native-size-matters";
+import { ScaledSheet } from "react-native-size-matters";
 import useCurrentWorkspace, {
   clearCurrentComponent,
   pushComponentToCurrentWorkspace,
-  updatePaintParams,
 } from "@/hooks/useWorkspace";
-import { Slider } from "@miblanchard/react-native-slider";
-import {
-  findCurrentComponent,
-  getComponentTransform,
-  updateComponentTransform,
-} from "@/utils";
+import { findCurrentComponent } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Center } from "@/components/ui/center";
-import { Component, MatrixIndex } from "@/type/store";
+import { Component, PaintType } from "@/type/store";
 import { Button, ButtonGroup } from "@/components/ui/button";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -51,11 +32,18 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
-import FrameList from "./FrameList";
+import FrameList from "../FrameList";
 import uuid from "react-native-uuid";
-import { Pressable, ScrollView } from "react-native";
-import { HStack } from "@/components/ui/hstack";
+import BlurSlider from "./components/BlurSlider";
+import TemperatureSlider from "./components/TemperatureSlider";
+import OpacitySlider from "./components/OpacitySlider";
+import PaintLineWeightSlider from "./components/PaintLineWeightSlider";
+import PaintColor from "./components/PaintColor";
+import PenIcon from "./components/PenIcon";
+import PenList from "./components/PenList";
+import useColorSchemeStyle from "@/hooks/useColorSchemeStyles";
 
 const ExpandComponent = () => {
   const queryClient = useQueryClient();
@@ -71,15 +59,7 @@ const ExpandComponent = () => {
     [workspace, workspace?.componentEditingId, workspace?.components]
   );
 
-  const [blur, setBlur] = React.useState<number>(0);
-
-  const [temperature, setTemperature] = React.useState<number>(0);
-
-  const [opacity, setOpacity] = React.useState<number>(0);
-
-  const [paintWeight, setPaintWeight] = React.useState<number>(PAINT_WEIGHT[0]);
-
-  const [colorSelect, setColorSelect] = React.useState<string>(COLOR[0][1]);
+  const colorSchemeStyle = useColorSchemeStyle();
 
   const [isBlurVisible, setIsBlurVisible] = React.useState<boolean>(false);
 
@@ -97,6 +77,9 @@ const ExpandComponent = () => {
   const [isPntColorVisible, setIsPntColorVisible] =
     React.useState<boolean>(false);
 
+  const [isPntTypeVisible, setIsPntTypeVisible] =
+    React.useState<boolean>(false);
+
   const isComponentExpand = useSharedValue(0);
 
   React.useEffect(() => {
@@ -108,30 +91,13 @@ const ExpandComponent = () => {
     );
   }, [workspace?.componentEditingId]);
 
-  React.useEffect(() => {
-    if (component) {
-      setBlur(getComponentTransform(component, MatrixIndex.BLUR));
-      setTemperature(
-        getComponentTransform(component, MatrixIndex.TEMPERATURE_UP)
-      );
-      setOpacity(getComponentTransform(component, MatrixIndex.OPACITY) * 100);
-      setPaintWeight(component.params?.lastWeight ?? PAINT_WEIGHT[0]);
-      setColorSelect(component.params?.lastColor ?? COLOR[0][1]);
-    } else {
-      setBlur(0);
-      setTemperature(0);
-      setOpacity(0);
-      setPaintWeight(PAINT_WEIGHT[0]);
-      setColorSelect(COLOR[0][1]);
-    }
-  }, [component]);
-
   const closeExpand = () => {
     setIsBlurVisible(false);
     setIsTemperatureVisible(false);
     setIsOpacityVisible(false);
     setIsPntLineWeightVisible(false);
     setIsPntColorVisible(false);
+    setIsPntTypeVisible(false);
   };
 
   const closeTool = () => {
@@ -180,6 +146,7 @@ const ExpandComponent = () => {
       params: {
         lastWeight: PAINT_WEIGHT[0],
         lastColor: COLOR[0][1],
+        lastPainType: PaintType.PEN,
       },
     };
     pushComponentToCurrentWorkspace(newComponent, queryClient);
@@ -190,156 +157,38 @@ const ExpandComponent = () => {
       {isFrameVisible && <FrameList />}
       <Animated.View style={styles.container}>
         <Center className="flex-1">
-          {isBlurVisible && (
-            <Box
-              style={styles.toolContainer}
-              className="bg-white rounded-xl shadow-md px-4 py-2"
-            >
-              <Box style={{ width: "100%" }}>
-                <Text>Làm mờ</Text>
-                <Slider
-                  value={blur}
-                  onValueChange={(value) => {
-                    setBlur(value[0]);
-                    updateComponentTransform(
-                      component,
-                      MatrixIndex.BLUR,
-                      value[0]
-                    );
-                  }}
-                  minimumValue={MIN_BLUR}
-                  maximumValue={MAX_BLUR}
-                  containerStyle={{ width: "100%", height: verticalScale(35) }}
-                  step={BLUR_STEP}
-                  minimumTrackTintColor="#7ccff8"
-                  maximumTrackTintColor="#d4d4d4"
-                />
-              </Box>
-            </Box>
-          )}
+          {isBlurVisible && <BlurSlider component={component} />}
           {isTemperatureVisible && component?.type === "IMAGE" && (
-            <Box
-              style={styles.toolContainer}
-              className="bg-white rounded-xl shadow-md px-4 py-2"
-            >
-              <Box style={{ width: "100%" }}>
-                <Text>Tăng nhiệt độ</Text>
-                <Slider
-                  value={temperature}
-                  onValueChange={(value) => {
-                    setTemperature(value[0]);
-                    updateComponentTransform(
-                      component,
-                      MatrixIndex.TEMPERATURE_UP,
-                      value[0]
-                    );
-                  }}
-                  minimumValue={MIN_TEMPERATURE_UP}
-                  maximumValue={MAX_TEMPERATURE_UP}
-                  containerStyle={{ width: "100%", height: verticalScale(35) }}
-                  step={TEMPERATURE_UP_STEP}
-                  minimumTrackTintColor="#7ccff8"
-                  maximumTrackTintColor="#d4d4d4"
-                />
-              </Box>
-            </Box>
+            <TemperatureSlider component={component} />
           )}
-          {isOpacityVisible && (
-            <Box
-              style={styles.toolContainer}
-              className="bg-white rounded-xl shadow-md px-4 py-2"
-            >
-              <Box style={{ width: "100%" }}>
-                <Text>Trong suốt</Text>
-                <Slider
-                  value={opacity}
-                  onValueChange={(value) => {
-                    setOpacity(value[0]);
-                    updateComponentTransform(
-                      component,
-                      MatrixIndex.OPACITY,
-                      value[0] / MAX_OPACITY
-                    );
-                  }}
-                  minimumValue={MIN_OPACITY}
-                  maximumValue={MAX_OPACITY}
-                  containerStyle={{ width: "100%", height: verticalScale(35) }}
-                  step={OPACITY_STEP}
-                  minimumTrackTintColor="#7ccff8"
-                  maximumTrackTintColor="#d4d4d4"
-                />
-              </Box>
-            </Box>
-          )}
+          {isOpacityVisible && <OpacitySlider component={component} />}
           {isPntLineWeightVisible && (
-            <Box
-              style={styles.toolContainer}
-              className="bg-white rounded-xl shadow-md px-4 py-2"
-            >
-              <Box style={{ width: "100%" }}>
-                <Text>Kích cỡ</Text>
-                <Slider
-                  value={paintWeight}
-                  onValueChange={(value) => {
-                    setPaintWeight(value[0]);
-                    updatePaintParams(queryClient, {
-                      lastWeight: value[0],
-                    });
-                  }}
-                  minimumValue={MIN_PAINT_WEIGHT}
-                  maximumValue={MAX_PAINT_WEIGHT}
-                  containerStyle={{ width: "100%", height: verticalScale(35) }}
-                  step={PAINT_WEIGHT_STEP}
-                  minimumTrackTintColor="#7ccff8"
-                  maximumTrackTintColor="#d4d4d4"
-                />
-              </Box>
-            </Box>
+            <PaintLineWeightSlider component={component} />
           )}
-          {isPntColorVisible && (
-            <Box
-              style={styles.toolContainer}
-              className="bg-white rounded-xl shadow-md px-4 py-2"
-            >
-              <Box style={{ width: "100%" }}>
-                <Text>Màu bút</Text>
-                <ScrollView horizontal>
-                  <HStack space="sm" className="p-2">
-                    {COLOR.map((colors, page) => (
-                      <HStack space="sm" key={page}>
-                        {colors.map((color) => (
-                          <Pressable
-                            key={color}
-                            onPress={() => {
-                              setColorSelect(color);
-                              updatePaintParams(queryClient, {
-                                lastColor: color,
-                              });
-                            }}
-                          >
-                            <Box
-                              style={{ width: scale(10), height: scale(10) }}
-                              className={`rounded-full shadow-md ${color === colorSelect ? "p-1" : ""}`}
-                            >
-                              <Box
-                                style={{
-                                  backgroundColor: color,
-                                }}
-                                className="rounded-full shadow-md flex-1"
-                              />
-                            </Box>
-                          </Pressable>
-                        ))}
-                      </HStack>
-                    ))}
-                  </HStack>
-                </ScrollView>
-              </Box>
-            </Box>
-          )}
+          {isPntTypeVisible && <PenList component={component} />}
+          {isPntColorVisible && <PaintColor component={component} />}
           <Animated.View style={[componentExpandStyle, styles.expandContainer]}>
-            <Box className="bg-white flex-1 rounded-md p-2 shadow-md">
+            <Box
+              style={colorSchemeStyle.box}
+              className="flex-1 rounded-md p-2 shadow-md"
+            >
               <ButtonGroup flexDirection="row" className="flex-row px-2">
+                {component?.type === "PAINT" && (
+                  <Button
+                    variant="outline"
+                    className="border-0"
+                    onPress={() => {
+                      const preValue = isPntTypeVisible;
+                      closeExpand();
+                      setIsPntTypeVisible(!preValue);
+                    }}
+                  >
+                    <PenIcon
+                      type={component?.params?.lastPainType}
+                      {...colorSchemeStyle.icon}
+                    />
+                  </Button>
+                )}
                 {component?.type === "PAINT" && (
                   <Button
                     variant="outline"
@@ -353,7 +202,7 @@ const ExpandComponent = () => {
                     <Ionicons
                       name="color-palette-outline"
                       size={24}
-                      color="black"
+                      {...colorSchemeStyle.icon}
                     />
                   </Button>
                 )}
@@ -367,7 +216,11 @@ const ExpandComponent = () => {
                       setIsPntLineWeightVisible(!preValue);
                     }}
                   >
-                    <MaterialIcons name="line-weight" size={24} color="black" />
+                    <MaterialIcons
+                      name="line-weight"
+                      size={24}
+                      {...colorSchemeStyle.icon}
+                    />
                   </Button>
                 )}
                 {component?.type === "IMAGE" && (
@@ -380,7 +233,11 @@ const ExpandComponent = () => {
                       setIsBlurVisible(!preValue);
                     }}
                   >
-                    <MaterialIcons name="blur-on" size={24} color="black" />
+                    <MaterialIcons
+                      name="blur-on"
+                      size={24}
+                      {...colorSchemeStyle.icon}
+                    />
                   </Button>
                 )}
                 {component?.type === "IMAGE" && (
@@ -393,7 +250,11 @@ const ExpandComponent = () => {
                     }}
                     className="border-0"
                   >
-                    <Fontisto name="day-sunny" size={24} color="black" />
+                    <Fontisto
+                      name="day-sunny"
+                      size={24}
+                      {...colorSchemeStyle.icon}
+                    />
                   </Button>
                 )}
                 <Button
@@ -408,7 +269,7 @@ const ExpandComponent = () => {
                   <MaterialCommunityIcons
                     name="circle-opacity"
                     size={24}
-                    color="black"
+                    {...colorSchemeStyle.icon}
                   />
                 </Button>
                 <Button
@@ -419,7 +280,11 @@ const ExpandComponent = () => {
                     clearCurrentComponent(queryClient);
                   }}
                 >
-                  <AntDesign name="close" size={24} color="black" />
+                  <AntDesign
+                    name="close"
+                    size={24}
+                    {...colorSchemeStyle.icon}
+                  />
                 </Button>
               </ButtonGroup>
             </Box>
@@ -431,14 +296,21 @@ const ExpandComponent = () => {
               componentToolStyle,
             ]}
           >
-            <Box className="bg-white flex-1 rounded-md p-2 shadow-md">
+            <Box
+              style={colorSchemeStyle.box}
+              className="flex-1 rounded-md p-2 shadow-md"
+            >
               <ButtonGroup flexDirection="row" className="flex-row px-2">
                 <Button
                   variant="outline"
                   className="border-0"
                   onPress={createPaint}
                 >
-                  <FontAwesome6 name="paintbrush" size={24} color="black" />
+                  <FontAwesome6
+                    name="paintbrush"
+                    size={24}
+                    {...colorSchemeStyle.icon}
+                  />
                 </Button>
                 <Button
                   variant="outline"
@@ -452,7 +324,7 @@ const ExpandComponent = () => {
                   <MaterialCommunityIcons
                     name="image-frame"
                     size={24}
-                    color="black"
+                    {...colorSchemeStyle.icon}
                   />
                 </Button>
                 <Button
@@ -460,7 +332,7 @@ const ExpandComponent = () => {
                   className="border-0"
                   onPress={() => router.navigate("/upload-image")}
                 >
-                  <AntDesign name="plus" size={24} color="black" />
+                  <AntDesign name="plus" size={24} {...colorSchemeStyle.icon} />
                 </Button>
               </ButtonGroup>
             </Box>
@@ -477,7 +349,7 @@ const styles = ScaledSheet.create({
   container: {
     position: "absolute",
     zIndex: TOOL_COMPONENT_Z_INDEX,
-    bottom: "25@s",
+    bottom: "40@s",
     left: "50@s",
     right: "50@s",
   },

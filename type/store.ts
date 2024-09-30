@@ -20,6 +20,7 @@ export type PaintMatrix = Array<Array<number | string>>;
 export type PaintParams = {
   lastWeight?: number;
   lastColor?: string;
+  lastPainType?: PaintType;
 };
 
 export type Component<ListParams = Array<SharedValue<number>>> = {
@@ -80,3 +81,9 @@ export type DevLog = {
   data: Object | string | number;
   id: string;
 };
+
+export enum PaintType {
+  PEN,
+  HIGH_LIGHT_PEN,
+  TICK_PEN,
+}

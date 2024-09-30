@@ -11,9 +11,10 @@ import {
 } from "@/type/store";
 import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
-import { SharedValue } from "react-native-reanimated";
+import { SharedValue, clamp } from "react-native-reanimated";
 import { ComponentState } from "react";
 import { TEMPERATURE_UP } from "@/constants/Workspace";
+import { AlphaType, ColorType, SkImage } from "@shopify/react-native-skia";
 
 export const pickImage =
   async (): Promise<ImagePicker.ImagePickerResult | null> => {
@@ -314,4 +315,37 @@ export const scalePathData = (pathData: string, scale: number): string => {
 
   // Kết hợp lại thành một chuỗi `d` mới
   return scaledParts.join(" ");
+};
+
+export const pickColorAt = ({
+  image,
+  width,
+  height,
+  x: _x,
+  y: _y,
+}: {
+  image: SkImage;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}) => {
+  const resizerX = image.width() / width;
+  const resizerY = image.height() / height;
+  const x = (width / 2 + _x) * resizerX;
+  const y = (height / 2 + _y) * resizerY;
+
+  const pixels = image.readPixels(x, y, {
+    colorType: ColorType.RGBA_F32,
+    alphaType: AlphaType.Premul,
+    height: 1,
+    width: 1,
+  });
+
+  if (pixels === null) return;
+
+  const r = clamp(Math.round(pixels[0]! * 255), 0, 255);
+  const g = clamp(Math.round(pixels[1]! * 255), 0, 255);
+  const b = clamp(Math.round(pixels[2]! * 255), 0, 255);
+  return { r, g, b };
 };

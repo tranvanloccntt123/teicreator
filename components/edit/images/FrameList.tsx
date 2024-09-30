@@ -3,14 +3,18 @@ import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import {
   EXPAND_FRAME_Z_INDEX,
+  PAINT_BLEND_MODE,
   PAINT_COLOR_POSITION,
+  PAINT_PEN_TYPE,
   PAINT_START_POSITION,
+  PAINT_STROKE_CAP,
+  PAINT_STROKE_JOIN,
   PAINT_WEIGHT_POSITION,
 } from "@/constants/Workspace";
 import { useQueryClient } from "@tanstack/react-query";
 import useCurrentWorkspace, { setCurrentComponent } from "@/hooks/useWorkspace";
 import { FlatList, TouchableOpacity } from "react-native";
-import { Component, PaintMatrix, WorkspaceSize } from "@/type/store";
+import { Component, PaintMatrix, PaintType, WorkspaceSize } from "@/type/store";
 import {
   BlendMode,
   Canvas,
@@ -25,6 +29,7 @@ import {
 import { ScaledSheet, scale } from "react-native-size-matters";
 import { fitComponentSize } from "@/utils";
 import { Center } from "@/components/ui/center";
+import useColorSchemeStyle from "@/hooks/useColorSchemeStyles";
 
 const FRAME_SIZE = scale(70);
 
@@ -58,17 +63,17 @@ const FrameItem: React.FC<{
     const picture = createPicture((canvas) => {
       const listPath = component.data as PaintMatrix;
       const paint = Skia.Paint();
-      paint.setBlendMode(BlendMode.Multiply);
-      paint.setColor(Skia.Color("#000000"));
       listPath.forEach((line) => {
-        const path = Skia.Path.Make();
         const color = line[PAINT_COLOR_POSITION] as string;
         const weight = line[PAINT_WEIGHT_POSITION] as number;
+        const paintType = line[PAINT_PEN_TYPE] as PaintType;
+        paint.setBlendMode(PAINT_BLEND_MODE[paintType]);
+        const path = Skia.Path.Make();
         paint.setColor(Skia.Color(color));
-        if (line.length === 4) {
+        if (line.length === PAINT_START_POSITION + 2) {
           const x = (line[PAINT_START_POSITION] as number) * rootSize.scale;
           const y = (line[PAINT_START_POSITION + 1] as number) * rootSize.scale;
-          path.addCircle(x, y, weight * rootSize.scale);
+          path.addCircle(x, y, (weight / 1.8) * rootSize.scale);
         } else {
           for (let i = PAINT_START_POSITION; i < line.length - 2; i += 2) {
             const x = (line[i] as number) * rootSize.scale;
@@ -81,8 +86,8 @@ const FrameItem: React.FC<{
           }
           path.stroke({
             width: weight * rootSize.scale,
-            cap: StrokeCap.Round,
-            join: StrokeJoin.Round,
+            cap: PAINT_STROKE_CAP[paintType],
+            join: PAINT_STROKE_JOIN[paintType],
           });
         }
 
@@ -92,9 +97,10 @@ const FrameItem: React.FC<{
     });
     return (
       <TouchableOpacity
+      style={{ marginBottom: 15 }}
         onPress={() => setCurrentComponent(component.id, queryClient)}
       >
-        <Center style={styles.frameItemContainer}>
+        <Center style={styles.frameItemContainer} className="bg-white">
           <Canvas style={{ width: _FRAME_SIZE, height: _FRAME_SIZE }}>
             <Picture picture={picture} />
           </Canvas>
@@ -104,6 +110,7 @@ const FrameItem: React.FC<{
   }
   return (
     <TouchableOpacity
+      style={{ marginBottom: 15 }}
       onPress={() => setCurrentComponent(component.id, queryClient)}
     >
       <Center style={styles.frameItemContainer}>
@@ -123,15 +130,14 @@ const FrameItem: React.FC<{
 };
 
 const FrameList = () => {
-  const queryClient = useQueryClient();
-
   const { data: workspace } = useCurrentWorkspace();
+  const colorSchemeStyle = useColorSchemeStyle();
   return (
     <Box
-      className="absolute top-2 bottom-2 right-2 rounded-md bg-white shadow-md"
-      style={styles.container}
+      className="absolute top-2 bottom-2 right-2 rounded-md shadow-md"
+      style={{ ...(styles.container as any), ...colorSchemeStyle.box }}
     >
-      <Text>Frame</Text>
+      <Text className="mb-2">Frame</Text>
       <FlatList
         data={workspace.components ?? []}
         keyExtractor={(item, index) => item.id ?? `frame-item-${index}`}
@@ -154,5 +160,6 @@ const styles = ScaledSheet.create({
   frameItemContainer: {
     width: FRAME_SIZE,
     height: FRAME_SIZE,
+    borderRadius: 15,
   },
 });

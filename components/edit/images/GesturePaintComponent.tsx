@@ -1,5 +1,11 @@
 import React from "react";
-import { Component, FitSize, MatrixIndex, PaintMatrix } from "@/type/store";
+import {
+  Component,
+  FitSize,
+  MatrixIndex,
+  PaintMatrix,
+  PaintType,
+} from "@/type/store";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
@@ -49,11 +55,12 @@ const GesturePaintComponent: React.FC<{
       if (!isTranslateVisible.value) {
         kalmanX.current.clear();
         kalmanY.current.clear();
+        const penType = component.params?.lastPainType ?? PaintType.PEN;
         const color = component.params.lastColor ?? COLOR[0][1];
         const weight = component.params.lastWeight ?? PAINT_WEIGHT[0];
         const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
         const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
-        data.current.push([color, weight, x, y]);
+        data.current.push([color, weight, penType, x, y]);
         updatePaintStatus(
           queryClient,
           `MOVE-TO-${x}-${y}`,
