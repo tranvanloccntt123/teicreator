@@ -14,7 +14,6 @@ import { ScaledSheet } from "react-native-size-matters";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { deleteComponentById } from "@/hooks/useWorkspace";
-import { useQueryClient } from "@tanstack/react-query";
 import usePositionXY from "@/hooks/usePosition";
 import {
   BTN_OPTION_ICON_SIZE,
@@ -22,8 +21,8 @@ import {
   MAX_SCALE,
   MIN_SCALE,
 } from "@/constants/EditImage";
-import GestureRotateComponent from "./GestureRotateComponent";
-import GestureResizeComponent from "./GestureResizeComponent";
+import GestureRotateComponent from "./components/GestureRotateComponent";
+import GestureResizeComponent from "./components/GestureResizeComponent";
 import {
   getComponentTransform,
   resizeComponentFitWorkspace,
@@ -35,12 +34,11 @@ const TrashComponent: React.FC<{
   component: Component;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
-  const queryClient = useQueryClient();
   const size = useDerivedValue(() =>
     resizeComponentFitWorkspace(component, rootSize.scale)
   );
   const deleteCurrentComponent = () => {
-    deleteComponentById(component.id, queryClient);
+    deleteComponentById(component.id);
   };
   const tap = Gesture.Tap()
     .onEnd(() => {

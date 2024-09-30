@@ -22,7 +22,6 @@ import useCurrentWorkspace, {
   pushComponentToCurrentWorkspace,
 } from "@/hooks/useWorkspace";
 import { findCurrentComponent } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import { Center } from "@/components/ui/center";
 import { Component, PaintType } from "@/type/store";
 import { Button, ButtonGroup } from "@/components/ui/button";
@@ -32,9 +31,8 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
-import FrameList from "../FrameList";
+import FrameList from "./components/FrameList";
 import uuid from "react-native-uuid";
 import BlurSlider from "./components/BlurSlider";
 import TemperatureSlider from "./components/TemperatureSlider";
@@ -46,8 +44,6 @@ import PenList from "./components/PenList";
 import useColorSchemeStyle from "@/hooks/useColorSchemeStyles";
 
 const ExpandComponent = () => {
-  const queryClient = useQueryClient();
-
   const { data: workspace } = useCurrentWorkspace();
 
   const component = React.useMemo(
@@ -149,7 +145,7 @@ const ExpandComponent = () => {
         lastPainType: PaintType.PEN,
       },
     };
-    pushComponentToCurrentWorkspace(newComponent, queryClient);
+    pushComponentToCurrentWorkspace(newComponent);
   };
 
   return (
@@ -277,7 +273,7 @@ const ExpandComponent = () => {
                   className="border-0"
                   onPress={() => {
                     closeExpand();
-                    clearCurrentComponent(queryClient);
+                    clearCurrentComponent();
                   }}
                 >
                   <AntDesign

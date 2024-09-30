@@ -7,7 +7,6 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle } from "react-native";
 import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
-import { useQueryClient } from "@tanstack/react-query";
 import { setCurrentComponent } from "@/hooks/useWorkspace";
 import {
   getComponentTransform,
@@ -21,12 +20,11 @@ const GestureTapComponent: React.FC<{
   index: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {
-  const queryClient = useQueryClient();
   const { width, height } = useWindowDimensions();
   const tap = Gesture.Tap()
     .onEnd(() => {
       if (component.id) {
-        setCurrentComponent(component.id, queryClient);
+        setCurrentComponent(component.id);
       }
     })
     .runOnJS(true);

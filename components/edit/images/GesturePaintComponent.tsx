@@ -25,7 +25,6 @@ import {
   updateComponentTransform,
 } from "@/utils";
 import { updatePaintStatus } from "@/hooks/useWorkspace";
-import { useQueryClient } from "@tanstack/react-query";
 import { KalmanFilter } from "@/services/kalmanFilter";
 
 const GesturePaintComponent: React.FC<{
@@ -34,7 +33,6 @@ const GesturePaintComponent: React.FC<{
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {
   const { width, height } = useWindowDimensions();
-  const queryClient = useQueryClient();
   const isTranslateVisible = useSharedValue(false);
   const data = React.useRef(component.data as PaintMatrix);
   const prevTranslate = usePositionXY({
@@ -69,12 +67,7 @@ const GesturePaintComponent: React.FC<{
         const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
         const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
         data.current.push([color, weight, penType, x, y]);
-        updatePaintStatus(
-          queryClient,
-          `MOVE-TO-${x}-${y}`,
-          index,
-          data.current
-        );
+        updatePaintStatus(`MOVE-TO-${x}-${y}`, index, data.current);
         return;
       }
     })
@@ -110,12 +103,7 @@ const GesturePaintComponent: React.FC<{
         }
         data.current[data.current.length - 1].push(x);
         data.current[data.current.length - 1].push(y);
-        updatePaintStatus(
-          queryClient,
-          `MOVE-TO-${x}-${y}`,
-          index,
-          data.current
-        );
+        updatePaintStatus(`MOVE-TO-${x}-${y}`, index, data.current);
         return;
       }
       updateComponentTransform(

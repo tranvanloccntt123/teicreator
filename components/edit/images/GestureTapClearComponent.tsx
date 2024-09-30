@@ -1,15 +1,13 @@
 import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
 import { clearCurrentComponent } from "@/hooks/useWorkspace";
-import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { StyleProp, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle } from "react-native-size-matters";
 
 const GestureTapClearComponent = () => {
-  const queryClient = useQueryClient();
   const tap = Gesture.Tap().onEnd(() => {
-    clearCurrentComponent(queryClient);
+    clearCurrentComponent();
   }).runOnJS(true);
   const style = React.useMemo<StyleProp<ViewStyle>>(
     () => ({

@@ -11,11 +11,8 @@ import useCurrentWorkspace, {
 import RoundRootComponent from "./RoundRootComponent";
 import { fitComponentSize } from "@/utils";
 import Painting from "./Painting";
-import { useQueryClient } from "@tanstack/react-query";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();
-
-  const queryClient = useQueryClient();
 
   const { data: workspace } = useCurrentWorkspace();
 
@@ -34,7 +31,7 @@ const WorkspaceView: React.FC<object> = () => {
       widthDimensions: width - scale(15),
       heightDimensions: height - verticalScale(50),
     });
-    updateCurrentWorkspace({ viewResize: fitRootView }, queryClient);
+    updateCurrentWorkspace({ viewResize: fitRootView });
   }, [workspace, width, height]);
 
   return (

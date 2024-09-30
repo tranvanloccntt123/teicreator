@@ -1,8 +1,7 @@
 import React from "react";
 import AppStyles from "@/assets/css";
 import { Image, ScrollView, useWindowDimensions } from "react-native";
-import { pickImage, first, fitComponentSize, resizeImage } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { pickImage, first, fitComponentSize } from "@/utils";
 import { useNavigation } from "expo-router";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
@@ -18,7 +17,6 @@ import { INIT_MATRIX } from "@/constants/Workspace";
 import { Skia } from "@shopify/react-native-skia";
 const UploadImage = () => {
   const navigation = useNavigation();
-  const queryClient = useQueryClient();
   const { data: workspace } = useCurrentWorkspace();
   const { width, height } = useWindowDimensions();
   const [image, setImage] = React.useState<string>();
@@ -64,7 +62,7 @@ const UploadImage = () => {
       matrix: INIT_MATRIX.map((v) => makeMutable(v)),
       type: "IMAGE",
     };
-    pushComponentToCurrentWorkspace(newComponent, queryClient);
+    pushComponentToCurrentWorkspace(newComponent);
     navigation.goBack();
   };
 

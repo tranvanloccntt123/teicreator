@@ -11,13 +11,11 @@ import { Component } from "@/type/store";
 import { verticalScale } from "react-native-size-matters";
 import { Slider } from "@miblanchard/react-native-slider";
 import { updatePaintParams } from "@/hooks/useWorkspace";
-import { useQueryClient } from "@tanstack/react-query";
 import ExpandItemContainer from "./ExpandItemContainer";
 
 const PaintLineWeightSlider: React.FC<{ component?: Component }> = ({
   component,
 }) => {
-  const queryClient = useQueryClient();
   const [paintWeight, setPaintWeight] = React.useState<number>(PAINT_WEIGHT[0]);
   React.useEffect(() => {
     setPaintWeight(component ? component.params.lastWeight : PAINT_WEIGHT[0]);
@@ -30,7 +28,7 @@ const PaintLineWeightSlider: React.FC<{ component?: Component }> = ({
           value={paintWeight}
           onValueChange={(value) => {
             setPaintWeight(value[0]);
-            updatePaintParams(queryClient, {
+            updatePaintParams({
               lastWeight: value[0],
             });
           }}

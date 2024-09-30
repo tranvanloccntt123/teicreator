@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@/components/ui/box";
 import GestureComponent from "./GestureComponent";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
-import GestureTapComponent from "./GestureTapComponent";
+import GestureTapComponent from "./GestureComponent/components/GestureTapComponent";
 import GestureTapClearComponent from "./GestureTapClearComponent";
 import GesturePaintComponent from "./GesturePaintComponent";
 

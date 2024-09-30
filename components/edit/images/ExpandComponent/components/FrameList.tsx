@@ -11,19 +11,15 @@ import {
   PAINT_STROKE_JOIN,
   PAINT_WEIGHT_POSITION,
 } from "@/constants/Workspace";
-import { useQueryClient } from "@tanstack/react-query";
 import useCurrentWorkspace, { setCurrentComponent } from "@/hooks/useWorkspace";
 import { FlatList, TouchableOpacity } from "react-native";
 import { Component, PaintMatrix, PaintType, WorkspaceSize } from "@/type/store";
 import {
-  BlendMode,
   Canvas,
   Image,
   Picture,
   SkImage,
   Skia,
-  StrokeCap,
-  StrokeJoin,
   createPicture,
 } from "@shopify/react-native-skia";
 import { ScaledSheet, scale } from "react-native-size-matters";
@@ -37,7 +33,6 @@ const FrameItem: React.FC<{
   component: Component;
   workspaceSize: WorkspaceSize;
 }> = ({ component, workspaceSize }) => {
-  const queryClient = useQueryClient();
   const _FRAME_SIZE = FRAME_SIZE - scale(10);
   const size = React.useMemo(
     () =>
@@ -97,8 +92,8 @@ const FrameItem: React.FC<{
     });
     return (
       <TouchableOpacity
-      style={{ marginBottom: 15 }}
-        onPress={() => setCurrentComponent(component.id, queryClient)}
+        style={{ marginBottom: 15 }}
+        onPress={() => setCurrentComponent(component.id)}
       >
         <Center style={styles.frameItemContainer} className="bg-white">
           <Canvas style={{ width: _FRAME_SIZE, height: _FRAME_SIZE }}>
@@ -111,7 +106,7 @@ const FrameItem: React.FC<{
   return (
     <TouchableOpacity
       style={{ marginBottom: 15 }}
-      onPress={() => setCurrentComponent(component.id, queryClient)}
+      onPress={() => setCurrentComponent(component.id)}
     >
       <Center style={styles.frameItemContainer}>
         <Canvas style={{ width: _FRAME_SIZE, height: _FRAME_SIZE }}>

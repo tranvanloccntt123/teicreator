@@ -6,12 +6,10 @@ import { Component } from "@/type/store";
 import { scale } from "react-native-size-matters";
 import { Pressable, ScrollView } from "react-native";
 import { HStack } from "@/components/ui/hstack";
-import { useQueryClient } from "@tanstack/react-query";
 import { updatePaintParams } from "@/hooks/useWorkspace";
 import ExpandItemContainer from "./ExpandItemContainer";
 
 const PaintColor: React.FC<{ component?: Component }> = ({ component }) => {
-  const queryClient = useQueryClient();
   const [colorSelect, setColorSelect] = React.useState<string>(COLOR[0][1]);
   React.useEffect(() => {
     setColorSelect(component?.params?.lastColor ?? COLOR[0][1]);
@@ -29,7 +27,7 @@ const PaintColor: React.FC<{ component?: Component }> = ({ component }) => {
                     key={color}
                     onPress={() => {
                       setColorSelect(color);
-                      updatePaintParams(queryClient, {
+                      updatePaintParams({
                         lastColor: color,
                       });
                     }}

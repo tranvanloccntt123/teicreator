@@ -1,4 +1,5 @@
 import { QueryKeys } from "@/constants/QueryKeys";
+import queryClient from "@/services/queryClient";
 import {
   Component,
   DraftWorkspace,
@@ -7,26 +8,20 @@ import {
   PaintParams,
   Workspace,
 } from "@/type/store";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const useCurrentWorkspace = () =>
   useQuery<unknown, unknown, Workspace>({
     queryKey: [QueryKeys.CURRENT_WORKSPACE],
   });
 
-export const setCurrentWorkspace = (
-  workspace: Workspace,
-  queryClient: QueryClient
-) => {
+export const setCurrentWorkspace = (workspace: Workspace) => {
   queryClient.setQueryData([QueryKeys.CURRENT_WORKSPACE], (): Workspace => {
     return workspace;
   });
 };
 
-export const pushComponentToCurrentWorkspace = (
-  component: Component,
-  queryClient: QueryClient
-) => {
+export const pushComponentToCurrentWorkspace = (component: Component) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => ({
@@ -38,8 +33,7 @@ export const pushComponentToCurrentWorkspace = (
 };
 
 export const pushComponentToDraftWorkspace = (
-  component: Component<number[]>,
-  queryClient: QueryClient
+  component: Component<number[]>
 ) => {
   queryClient.setQueryData(
     [QueryKeys.DRAFT_WORKSPACE],
@@ -50,19 +44,13 @@ export const pushComponentToDraftWorkspace = (
   );
 };
 
-export const setDraftWorkspace = (
-  workspace: DraftWorkspace,
-  queryClient: QueryClient
-) => {
+export const setDraftWorkspace = (workspace: DraftWorkspace) => {
   queryClient.setQueryData([QueryKeys.DRAFT_WORKSPACE], (): DraftWorkspace => {
     return workspace;
   });
 };
 
-export const pushWorkspace = (
-  workspace: Workspace,
-  queryClient: QueryClient
-) => {
+export const pushWorkspace = (workspace: Workspace) => {
   queryClient.setQueryData(
     [QueryKeys.WORKSPACE_LIST],
     (oldData: Workspace[] | undefined): Workspace[] => [
@@ -72,7 +60,7 @@ export const pushWorkspace = (
   );
 };
 
-export const setCurrentComponent = (id: string, queryClient: QueryClient) => {
+export const setCurrentComponent = (id: string) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => {
@@ -84,7 +72,7 @@ export const setCurrentComponent = (id: string, queryClient: QueryClient) => {
   );
 };
 
-export const clearCurrentComponent = (queryClient: QueryClient) => {
+export const clearCurrentComponent = () => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => {
@@ -96,7 +84,7 @@ export const clearCurrentComponent = (queryClient: QueryClient) => {
   );
 };
 
-export const deleteComponentById = (id: string, queryClient: QueryClient) => {
+export const deleteComponentById = (id: string) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => ({
@@ -112,12 +100,7 @@ export const deleteComponentById = (id: string, queryClient: QueryClient) => {
   );
 };
 
-export const updateCurrentWorkspace = (
-  params: {
-    viewResize?: FitSize;
-  },
-  queryClient: QueryClient
-) => {
+export const updateCurrentWorkspace = (params: { viewResize?: FitSize }) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => {
@@ -136,7 +119,6 @@ export const updateCurrentWorkspace = (
 };
 
 export const updatePaintStatus = (
-  queryClient: QueryClient,
   paintStatus: string,
   componentIndex: number,
   data: PaintMatrix
@@ -155,10 +137,7 @@ export const updatePaintStatus = (
   );
 };
 
-export const updatePaintParams = (
-  queryClient: QueryClient,
-  params: PaintParams
-) => {
+export const updatePaintParams = (params: PaintParams) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
     (oldData: Workspace): Workspace => {

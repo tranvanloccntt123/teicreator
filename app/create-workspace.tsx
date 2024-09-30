@@ -12,10 +12,9 @@ import { Heading } from "@/components/ui/heading";
 import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { Input, InputField } from "@/components/ui/input";
 import { VStack } from "@/components/ui/vstack";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Button, ButtonText } from "@/components/ui/button";
 import { formValidate } from "@/utils/validator";
 import { configCreateWorkspace } from "@/constants/Validator";
-import { useQueryClient } from "@tanstack/react-query";
 import { createNewWorspace, fitComponentSize } from "@/utils";
 import { router } from "expo-router";
 import {
@@ -29,7 +28,6 @@ import { makeMutable } from "react-native-reanimated";
 import { scale, verticalScale } from "react-native-size-matters";
 
 const CreateWorkspace = () => {
-  const queryClient = useQueryClient();
   const { width: widthDimensions, height: heightDimensions } =
     useWindowDimensions();
   const [width, setWidth] = React.useState<string>("");
@@ -85,9 +83,9 @@ const CreateWorkspace = () => {
             scale: makeMutable(fitRootView.scale),
           },
         };
-        setCurrentWorkspace(initWorkspaceView, queryClient);
-        setDraftWorkspace(newWorkspace, queryClient);
-        pushWorkspace(initWorkspaceView, queryClient);
+        setCurrentWorkspace(initWorkspaceView);
+        setDraftWorkspace(newWorkspace);
+        pushWorkspace(initWorkspaceView);
         router.navigate("/workspace");
       }
     },
