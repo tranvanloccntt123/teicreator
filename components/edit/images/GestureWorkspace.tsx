@@ -1,14 +1,16 @@
 import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
-import { clearCurrentComponent } from "@/hooks/useWorkspace";
+import { clearCurrentComponent } from "@/utils";
 import React from "react";
 import { StyleProp, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle } from "react-native-size-matters";
 
-const GestureTapClearComponent = () => {
-  const tap = Gesture.Tap().onEnd(() => {
-    clearCurrentComponent();
-  }).runOnJS(true);
+const GestureWorkspace = () => {
+  const tap = Gesture.Tap()
+    .onEnd(() => {
+      clearCurrentComponent();
+    })
+    .runOnJS(true);
   const style = React.useMemo<StyleProp<ViewStyle>>(
     () => ({
       position: "absolute",
@@ -17,6 +19,7 @@ const GestureTapClearComponent = () => {
       bottom: 0,
       left: 0,
       zIndex: GESTURE_TAP_Z_INDEX - 1,
+      backgroundColor: "red",
     }),
     []
   );
@@ -28,4 +31,4 @@ const GestureTapClearComponent = () => {
   );
 };
 
-export default GestureTapClearComponent;
+export default GestureWorkspace;

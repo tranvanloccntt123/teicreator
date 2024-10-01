@@ -24,7 +24,7 @@ import {
   rootTranslate,
   updateComponentTransform,
 } from "@/utils";
-import { updatePaintStatus } from "@/hooks/useWorkspace";
+import { updatePaintStatus } from "@/utils";
 import { KalmanFilter } from "@/services/kalmanFilter";
 
 const GesturePaintComponent: React.FC<{

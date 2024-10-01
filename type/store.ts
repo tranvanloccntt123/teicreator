@@ -62,6 +62,10 @@ export type Workspace = WorkspaceBase & {
   componentEditingId?: string;
   viewResize: FitSize<SharedValue<number>>;
   paintStatus?: string;
+  transform: {
+    translateX: SharedValue<number>;
+    translateY: SharedValue<number>;
+  };
 };
 
 export type DraftWorkspace = WorkspaceBase & {

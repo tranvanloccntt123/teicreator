@@ -17,15 +17,12 @@ import { formValidate } from "@/utils/validator";
 import { configCreateWorkspace } from "@/constants/Validator";
 import { createNewWorspace, fitComponentSize } from "@/utils";
 import { router } from "expo-router";
-import {
-  pushWorkspace,
-  setCurrentWorkspace,
-  setDraftWorkspace,
-} from "@/hooks/useWorkspace";
+import { pushWorkspace, setCurrentWorkspace, setDraftWorkspace } from "@/utils";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { HStack } from "@/components/ui/hstack";
 import { makeMutable } from "react-native-reanimated";
 import { scale, verticalScale } from "react-native-size-matters";
+import { Workspace } from "@/type/store";
 
 const CreateWorkspace = () => {
   const { width: widthDimensions, height: heightDimensions } =
@@ -75,12 +72,16 @@ const CreateWorkspace = () => {
           widthDimensions: widthDimensions - scale(15),
           heightDimensions: heightDimensions - verticalScale(50),
         });
-        const initWorkspaceView = {
+        const initWorkspaceView: Workspace = {
           ...newWorkspace,
           viewResize: {
             width: makeMutable(fitRootView.width),
             height: makeMutable(fitRootView.height),
             scale: makeMutable(fitRootView.scale),
+          },
+          transform: {
+            translateX: makeMutable(0),
+            translateY: makeMutable(0),
           },
         };
         setCurrentWorkspace(initWorkspaceView);

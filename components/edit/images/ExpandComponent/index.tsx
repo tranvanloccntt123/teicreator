@@ -17,11 +17,12 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { ScaledSheet } from "react-native-size-matters";
-import useCurrentWorkspace, {
+import useCurrentWorkspace from "@/hooks/useWorkspace";
+import {
   clearCurrentComponent,
+  findCurrentComponent,
   pushComponentToCurrentWorkspace,
-} from "@/hooks/useWorkspace";
-import { findCurrentComponent } from "@/utils";
+} from "@/utils";
 import { Center } from "@/components/ui/center";
 import { Component, PaintType } from "@/type/store";
 import { Button, ButtonGroup } from "@/components/ui/button";

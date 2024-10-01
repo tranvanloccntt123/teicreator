@@ -1,12 +1,13 @@
 import { Box } from "@/components/ui/box";
 import { HEADER_Z_INDEX } from "@/constants/Workspace";
-import useCurrentWorkspace, { deleteComponentById } from "@/hooks/useWorkspace";
+import useCurrentWorkspace from "@/hooks/useWorkspace";
 import React from "react";
 import Animated from "react-native-reanimated";
 import { ScaledSheet, scale } from "react-native-size-matters";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { HStack } from "@/components/ui/hstack";
 import { Button } from "@/components/ui/button";
+import { deleteComponentById } from "@/utils";
 
 const WorkspaceHeaderView = () => {
   const { data: workspace } = useCurrentWorkspace();

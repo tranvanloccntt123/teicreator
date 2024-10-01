@@ -13,7 +13,7 @@ import { Box } from "@/components/ui/box";
 import { ScaledSheet } from "react-native-size-matters";
 import { GESTURE_Z_INDEX } from "@/constants/Workspace";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { deleteComponentById } from "@/hooks/useWorkspace";
+import { deleteComponentById } from "@/utils";
 import usePositionXY from "@/hooks/usePosition";
 import {
   BTN_OPTION_ICON_SIZE,

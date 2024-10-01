@@ -9,6 +9,17 @@ export {
   temperatureUp,
   createNewWorspace,
   paintLinePath,
+  setCurrentWorkspace,
+  setCurrentComponent,
+  pushComponentToCurrentWorkspace,
+  pushComponentToDraftWorkspace,
+  setDraftWorkspace,
+  pushWorkspace,
+  clearCurrentComponent,
+  deleteComponentById,
+  updateCurrentWorkspace,
+  updatePaintStatus,
+  updatePaintParams,
 } from "./workspace";
 
 export {

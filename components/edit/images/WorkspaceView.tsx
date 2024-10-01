@@ -5,11 +5,9 @@ import ImagePreviewFromBase64 from "./ImagePreview";
 import { useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
 import { scale, verticalScale } from "react-native-size-matters";
-import useCurrentWorkspace, {
-  updateCurrentWorkspace,
-} from "@/hooks/useWorkspace";
+import useCurrentWorkspace from "@/hooks/useWorkspace";
 import RoundRootComponent from "./RoundRootComponent";
-import { fitComponentSize } from "@/utils";
+import { fitComponentSize, updateCurrentWorkspace } from "@/utils";
 import Painting from "./Painting";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();

@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { EXPAND_FRAME_Z_INDEX } from "@/constants/Workspace";
-import useCurrentWorkspace, { setCurrentComponent } from "@/hooks/useWorkspace";
+import useCurrentWorkspace from "@/hooks/useWorkspace";
 import { FlatList, TouchableOpacity } from "react-native";
 import { Component, WorkspaceSize } from "@/type/store";
 import {
@@ -13,7 +13,7 @@ import {
   createPicture,
 } from "@shopify/react-native-skia";
 import { ScaledSheet, scale } from "react-native-size-matters";
-import { fitComponentSize, paintLinePath } from "@/utils";
+import { fitComponentSize, paintLinePath, setCurrentComponent } from "@/utils";
 import { Center } from "@/components/ui/center";
 import useColorSchemeStyle from "@/hooks/useColorSchemeStyles";
 import { useDerivedValue } from "react-native-reanimated";

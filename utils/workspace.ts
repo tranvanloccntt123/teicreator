@@ -1,18 +1,19 @@
-import * as ImagePicker from "expo-image-picker";
-import { manipulateAsync } from "expo-image-manipulator";
 import {
   Component,
+  DraftWorkspace,
   FitSize,
   MatrixIndex,
   PaintMatrix,
+  PaintParams,
   PaintType,
   Vector,
+  Workspace,
   WorkspaceBase,
   WorkspaceSize,
 } from "@/type/store";
 import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
-import { SharedValue, clamp } from "react-native-reanimated";
+import { SharedValue } from "react-native-reanimated";
 import {
   PAINT_BLEND_MODE,
   PAINT_COLOR_POSITION,
@@ -23,13 +24,9 @@ import {
   PAINT_WEIGHT_POSITION,
   TEMPERATURE_UP,
 } from "@/constants/Workspace";
-import {
-  AlphaType,
-  ColorType,
-  SkCanvas,
-  SkImage,
-  Skia,
-} from "@shopify/react-native-skia";
+import { SkCanvas, Skia } from "@shopify/react-native-skia";
+import queryClient from "@/services/queryClient";
+import { QueryKeys } from "@/constants/QueryKeys";
 
 export const getComponentTransform = (
   component: Component,
@@ -155,4 +152,147 @@ export const paintLinePath = (
     path.close();
     canvas.drawPath(path, paint);
   });
+};
+
+export const setCurrentWorkspace = (workspace: Workspace) => {
+  queryClient.setQueryData([QueryKeys.CURRENT_WORKSPACE], (): Workspace => {
+    return workspace;
+  });
+};
+
+export const pushComponentToCurrentWorkspace = (component: Component) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => ({
+      ...oldData,
+      components: [...(oldData?.components || []), component],
+      componentEditingId: component.id,
+    })
+  );
+};
+
+export const pushComponentToDraftWorkspace = (
+  component: Component<number[]>
+) => {
+  queryClient.setQueryData(
+    [QueryKeys.DRAFT_WORKSPACE],
+    (oldData: DraftWorkspace): DraftWorkspace => ({
+      ...oldData,
+      components: [...(oldData?.components || []), component],
+    })
+  );
+};
+
+export const setDraftWorkspace = (workspace: DraftWorkspace) => {
+  queryClient.setQueryData([QueryKeys.DRAFT_WORKSPACE], (): DraftWorkspace => {
+    return workspace;
+  });
+};
+
+export const pushWorkspace = (workspace: Workspace) => {
+  queryClient.setQueryData(
+    [QueryKeys.WORKSPACE_LIST],
+    (oldData: Workspace[] | undefined): Workspace[] => [
+      ...(oldData || []),
+      workspace,
+    ]
+  );
+};
+
+export const setCurrentComponent = (id: string) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      return {
+        ...oldData,
+        componentEditingId: id,
+      };
+    }
+  );
+};
+
+export const clearCurrentComponent = () => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      return {
+        ...oldData,
+        componentEditingId: undefined,
+      };
+    }
+  );
+};
+
+export const deleteComponentById = (id: string) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => ({
+      ...oldData,
+      components: (oldData?.components || []).filter(
+        (component) => component.id !== id
+      ),
+      componentEditingId:
+        oldData.componentEditingId === id
+          ? undefined
+          : oldData.componentEditingId,
+    })
+  );
+};
+
+export const updateCurrentWorkspace = (params: { viewResize?: FitSize }) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const workspaceViewSize = oldData.viewResize;
+      if (params?.viewResize) {
+        workspaceViewSize.height.value = params.viewResize.height;
+        workspaceViewSize.width.value = params.viewResize.width;
+        workspaceViewSize.scale.value = params.viewResize.scale;
+      }
+      return {
+        ...oldData,
+        viewResize: workspaceViewSize,
+      };
+    }
+  );
+};
+
+export const updatePaintStatus = (
+  paintStatus: string,
+  componentIndex: number,
+  data: PaintMatrix
+) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      components[componentIndex].data = data;
+      return {
+        ...oldData,
+        components,
+        paintStatus: paintStatus,
+      };
+    }
+  );
+};
+
+export const updatePaintParams = (params: PaintParams) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      const componentIndex: number = components.findIndex(
+        (component) => component.id === oldData.componentEditingId
+      );
+      components[componentIndex]["params"] = {
+        ...components[componentIndex]["params"],
+        ...params,
+      };
+      return {
+        ...oldData,
+        components,
+        paintStatus: "CHANGE-WEIGHT",
+      };
+    }
+  );
 };
