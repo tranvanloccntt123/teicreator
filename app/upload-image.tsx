@@ -1,7 +1,7 @@
 import React from "react";
 import AppStyles from "@/assets/css";
 import { Image, ScrollView, useWindowDimensions } from "react-native";
-import { pickImage, first, fitComponentSize } from "@/utils";
+import { pickImage, first, fitComponentSize, pushComponentToCurrentWorkspace } from "@/utils";
 import { useNavigation } from "expo-router";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
@@ -9,9 +9,7 @@ import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 import uuid from "react-native-uuid";
 import { makeMutable } from "react-native-reanimated";
-import useCurrentWorkspace, {
-  pushComponentToCurrentWorkspace,
-} from "@/hooks/useWorkspace";
+import useCurrentWorkspace from "@/hooks/useWorkspace";
 import { Component } from "@/type/store";
 import { INIT_MATRIX } from "@/constants/Workspace";
 import { Skia } from "@shopify/react-native-skia";

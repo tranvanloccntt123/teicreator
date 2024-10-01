@@ -5,7 +5,7 @@ import { PAINT_PEN_TYPE_LIST } from "@/constants/Workspace";
 import { Component, PaintType } from "@/type/store";
 import { useColorScheme } from "react-native";
 import { HStack } from "@/components/ui/hstack";
-import { updatePaintParams } from "@/hooks/useWorkspace";
+import { updatePaintParams } from "@/utils";
 import { Button } from "@/components/ui/button";
 import PenIcon from "./PenIcon";
 import { Colors } from "@/constants/Colors";

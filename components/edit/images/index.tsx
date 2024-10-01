@@ -1,2 +1,2 @@
-export { default as WorkspaceView } from "./WorkspaceView";
-export { default as WorkspaceControlView } from "./WorkspaceControlView";
+export { default as WorkspaceView } from "./Canvas";
+export { default as WorkspaceControlView } from "./WorkspaceGesture/WorkspaceControlView";

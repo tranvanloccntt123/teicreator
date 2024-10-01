@@ -1,9 +1,8 @@
 import React from "react";
 import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
-import { WorkspaceControlView } from "@/components/edit/images";
-import WorkspaceView from "@/components/edit/images/WorkspaceView";
-import ExpandComponent from "@/components/edit/images/ExpandComponent";
+import { WorkspaceControlView, WorkspaceView } from "@/components/edit/images";
+import ExpandComponent from "@/components/edit/images/Expand";
 
 const Workspace = () => {
   return (

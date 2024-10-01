@@ -7,7 +7,7 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ViewStyle } from "react-native";
 import { GESTURE_TAP_Z_INDEX } from "@/constants/Workspace";
-import { setCurrentComponent } from "@/hooks/useWorkspace";
+import { setCurrentComponent } from "@/utils";
 import {
   getComponentTransform,
   resizeComponentFitWorkspace,

@@ -6,7 +6,7 @@ import { Component } from "@/type/store";
 import { scale } from "react-native-size-matters";
 import { Pressable, ScrollView } from "react-native";
 import { HStack } from "@/components/ui/hstack";
-import { updatePaintParams } from "@/hooks/useWorkspace";
+import { updatePaintParams } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 
 const PaintColor: React.FC<{ component?: Component }> = ({ component }) => {

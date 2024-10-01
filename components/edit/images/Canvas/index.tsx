@@ -1,14 +1,14 @@
 import React from "react";
 import { Canvas } from "@shopify/react-native-skia";
 import { router } from "expo-router";
-import ImagePreviewFromBase64 from "./ImagePreview";
+import ImagePreviewFromBase64 from "./components/ImagePreview";
 import { useWindowDimensions } from "react-native";
 import { Box } from "@/components/ui/box";
 import { scale, verticalScale } from "react-native-size-matters";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
-import RoundRootComponent from "./RoundRootComponent";
+import RoundRootComponent from "./components/RoundRootComponent";
 import { fitComponentSize, updateCurrentWorkspace } from "@/utils";
-import Painting from "./Painting";
+import Painting from "./components/Painting";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();
 

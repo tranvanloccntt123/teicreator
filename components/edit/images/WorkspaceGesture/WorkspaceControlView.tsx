@@ -1,10 +1,10 @@
 import React from "react";
 import { Box } from "@/components/ui/box";
-import GestureComponent from "./GestureComponent";
+import GestureComponent from "../Gesture";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
-import GestureTapComponent from "./GestureComponent/components/GestureTapComponent";
-import GestureWorkspace from "./GestureWorkspace";
-import GesturePaintComponent from "./GesturePaintComponent";
+import GestureTapComponent from "../Gesture/components/GestureTapComponent";
+import GestureWorkspace from "./components/GestureWorkspace";
+import GesturePaintComponent from "../Gesture/GesturePaintComponent";
 
 const WorkspaceControlView = () => {
   const { data: workspace } = useCurrentWorkspace();

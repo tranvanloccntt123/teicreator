@@ -10,7 +10,7 @@ import {
 import { Component } from "@/type/store";
 import { verticalScale } from "react-native-size-matters";
 import { Slider } from "@miblanchard/react-native-slider";
-import { updatePaintParams } from "@/hooks/useWorkspace";
+import { updatePaintParams } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 
 const PaintLineWeightSlider: React.FC<{ component?: Component }> = ({
