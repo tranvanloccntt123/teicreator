@@ -2,14 +2,14 @@ import React from "react";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { COLOR } from "@/constants/Workspace";
-import { Component } from "@/type/store";
+import { EditComponent } from "@/type/store";
 import { scale } from "react-native-size-matters";
 import { Pressable, ScrollView } from "react-native";
 import { HStack } from "@/components/ui/hstack";
 import { updatePaintParams } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 
-const PaintColor: React.FC<{ component?: Component }> = ({ component }) => {
+const PaintColor: React.FC<{ component?: EditComponent }> = ({ component }) => {
   const [colorSelect, setColorSelect] = React.useState<string>(COLOR[0][1]);
   React.useEffect(() => {
     setColorSelect(component?.params?.lastColor ?? COLOR[0][1]);

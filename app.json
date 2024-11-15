@@ -14,17 +14,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tranvanloc.teicreator"
+      "bundleIdentifier": "com.tranvanloc.teicreator",
+      "googleServicesFile": "./assets/firebase/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ],
-      "package": "com.tranvanloc.teicreator"
+      "permissions": ["android.permission.RECORD_AUDIO"],
+      "package": "com.tranvanloc.teicreator",
+      "googleServicesFile": "./assets/firebase/google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -33,12 +33,23 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true
@@ -52,11 +63,10 @@
       }
     },
     "owner": "tranvanloc",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/6a18a28e-b46f-4d77-a8e2-eadacdf62ce2"
-    }
+    },
+    "jsEngine": "hermes"
   }
 }

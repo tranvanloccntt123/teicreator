@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize, MatrixIndex } from "@/type/store";
+import { EditComponent, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   clamp,
@@ -28,7 +28,7 @@ import {
 import { ScaledSheet } from "react-native-size-matters";
 
 const GestureResizeComponent: React.FC<{
-  component: Component;
+  component: EditComponent;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
   const size = useDerivedValue(() =>

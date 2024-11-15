@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize, MatrixIndex } from "@/type/store";
+import { EditComponent, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
@@ -22,7 +22,7 @@ import { BTN_OPTION_ICON_SIZE, BTN_OPTION_SIZE } from "@/constants/EditImage";
 import { ScaledSheet } from "react-native-size-matters";
 
 const GestureRotateComponent: React.FC<{
-  component: Component;
+  component: EditComponent;
   step: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, step, rootSize }) => {

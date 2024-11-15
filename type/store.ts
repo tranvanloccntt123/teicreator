@@ -23,15 +23,23 @@ export type PaintParams = {
   lastPainType?: PaintType;
 };
 
-export type Component<ListParams = Array<SharedValue<number>>> = {
+export type EditComponent<ListParams = Array<SharedValue<number>>> = {
   id: string;
   data: SkImage | PaintMatrix;
-  isBase64?: boolean;
   size: WorkspaceSize;
   matrix: ListParams;
   type: ComponentType;
   params?: PaintParams;
 };
+
+export type FrameComponent<ListParams = Array<SharedValue<number>>> = {
+  id: string;
+  name: string;
+  components: EditComponent[];
+  size: WorkspaceSize;
+  matrix: ListParams;
+  params?: PaintParams;
+}
 
 export enum MatrixIndex {
   TRANSLATE_X,
@@ -58,8 +66,10 @@ export type FitSize<ValueType = number> = WorkspaceSize<ValueType> & {
 };
 
 export type Workspace = WorkspaceBase & {
-  components?: Array<Component>;
+  components?: Array<EditComponent>;
+  frames?: Array<FrameComponent>;
   componentEditingId?: string;
+  frameId?: string;
   viewResize: FitSize<SharedValue<number>>;
   paintStatus?: string;
   transform: {
@@ -69,7 +79,7 @@ export type Workspace = WorkspaceBase & {
 };
 
 export type DraftWorkspace = WorkspaceBase & {
-  components?: Array<Component<number[]>>;
+  components?: Array<EditComponent<number[]>>;
 };
 
 export type Vector = {

@@ -8,7 +8,7 @@ import {
   ColorMatrix,
   SkImage,
 } from "@shopify/react-native-skia";
-import { Component, FitSize, MatrixIndex } from "@/type/store";
+import { EditComponent, FitSize, MatrixIndex } from "@/type/store";
 import { useWindowDimensions } from "react-native";
 import { SharedValue, useDerivedValue } from "react-native-reanimated";
 import {
@@ -20,7 +20,7 @@ import {
 import { MATRIX_FILTER } from "@/constants/Workspace";
 
 const ImagePreviewFromBase64: React.FC<{
-  component: Component;
+  component: EditComponent;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
   const { width, height } = useWindowDimensions();

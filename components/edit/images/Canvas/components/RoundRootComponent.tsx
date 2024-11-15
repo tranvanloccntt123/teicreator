@@ -1,5 +1,5 @@
 import React from "react";
-import { Group, RoundedRect, size } from "@shopify/react-native-skia";
+import { Group, RoundedRect } from "@shopify/react-native-skia";
 import { useWindowDimensions } from "react-native";
 import { Workspace } from "@/type/store";
 import { scale } from "react-native-size-matters";
@@ -10,13 +10,10 @@ const RoundRootComponent: React.FC<{ workspace: Workspace }> = ({
 }) => {
   const { width, height } = useWindowDimensions();
 
-  const origin = React.useMemo(
-    () => ({
-      x: workspace.size.width / 2,
-      y: workspace.size.height / 2,
-    }),
-    [workspace.size.width, workspace.size.height]
-  );
+  const origin = useDerivedValue(() => ({
+    x: workspace.size.width / 2,
+    y: workspace.size.height / 2,
+  }));
 
   const x = useDerivedValue(
     () => (width - workspace.viewResize.width.value) / 2

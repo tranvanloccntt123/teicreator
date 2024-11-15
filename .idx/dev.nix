@@ -4,11 +4,9 @@
   # Which nixpkgs channel to use.
   channel = "stable-23.11"; # or "unstable"
   # Use https://search.nixos.org/packages to find packages
-  packages = [pkgs.nodejs_20];
+  packages = [ pkgs.nodejs_20 ];
   # Sets environment variables in the workspace
-  env = {
-    EXPO_USE_FAST_RESOLVER = 0; 
-  };
+  env = { EXPO_USE_FAST_RESOLVER = 1; };
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
@@ -17,32 +15,33 @@
     workspace = {
       # Runs when a workspace is first created with this `dev.nix` file
       onCreate = {
-        install = "npm ci --prefer-offline --no-audit --no-progress --timing && npm i @expo/ngrok@^4.1.0";
+        install =
+          "npm ci --prefer-offline --no-audit --no-progress --timing && npm i @expo/ngrok@^4.1.0";
       };
       # Runs when a workspace restarted
       onStart = {
         # connect-device = ''
-        #   adb -s localhost:5554 wait-for-device
+        #   adb -s localhost:5554 wait-for-device 
         # '';
         # install-expo-apk = ''
         #   adb install -r /home/user/teicreator/expo.apk
         # '';
-        start = ''
-          npx expo start --port 8083
-        '';
+        # android = ''
+        #   npm run android -- --port 5554 --tunnel
+        # '';
       };
     };
     # Enable previews and customize configuration
     previews = {
       enable = false;
       previews = {
-        # web = {
-        #   command = ["npm" "run" "web" "--" "--port" "$PORT"];
-        #   manager = "web";
-        # };
+        web = {
+          command = [ "npm" "run" "web" "--" "--port" "$PORT" ];
+          manager = "web";
+        };
         android = {
           # noop
-          command = ["tail" "-f" "/dev/null"];
+          command = [ "tail" "-f" "/dev/null" ];
           manager = "web";
         };
       };

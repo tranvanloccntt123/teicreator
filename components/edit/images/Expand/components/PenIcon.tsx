@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, PaintType } from "@/type/store";
+import { EditComponent, PaintType } from "@/type/store";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 const PenIcon: React.FC<{

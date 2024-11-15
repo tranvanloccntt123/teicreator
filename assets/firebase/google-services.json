@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "257106802178",
+    "project_id": "teicreat",
+    "storage_bucket": "teicreat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257106802178:android:b1e7e28af2d3dd0f59191b",
+        "android_client_info": {
+          "package_name": "com.tranvanloc.teicreator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvsAwSJcMhkgp3MEZixmMkko65vSpcCko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

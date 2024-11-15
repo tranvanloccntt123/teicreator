@@ -10,7 +10,7 @@ import { HStack } from "@/components/ui/hstack";
 import uuid from "react-native-uuid";
 import { makeMutable } from "react-native-reanimated";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
-import { Component } from "@/type/store";
+import { EditComponent } from "@/type/store";
 import { INIT_MATRIX } from "@/constants/Workspace";
 import { Skia } from "@shopify/react-native-skia";
 const UploadImage = () => {
@@ -52,11 +52,10 @@ const UploadImage = () => {
     const data = Skia.Data.fromBase64(image);
     const _image = Skia.Image.MakeImageFromEncoded(data);
 
-    const newComponent: Component = {
+    const newComponent: EditComponent = {
       id: componentId,
       data: _image,
       size: imageSize,
-      isBase64: true,
       matrix: INIT_MATRIX.map((v) => makeMutable(v)),
       type: "IMAGE",
     };

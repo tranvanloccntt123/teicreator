@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  Component,
+  EditComponent,
   FitSize,
   MatrixIndex,
   PaintMatrix,
@@ -20,21 +20,23 @@ import usePositionXY from "@/hooks/usePosition";
 import {
   getComponentTransform,
   hasIndex,
+  moveToLinePaint,
   resizeComponentFitWorkspace,
   rootTranslate,
+  startLinePaint,
   updateComponentTransform,
+  updateLastXYLinePaint,
 } from "@/utils";
-import { updatePaintStatus } from "@/utils";
 import { KalmanFilter } from "@/services/kalmanFilter";
 
 const GesturePaintComponent: React.FC<{
-  component: Component;
+  component: EditComponent;
   index: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {
   const { width, height } = useWindowDimensions();
   const isTranslateVisible = useSharedValue(false);
-  const data = React.useRef(component.data as PaintMatrix);
+  const lastXY = React.useRef({ x: 0, y: 0 });
   const prevTranslate = usePositionXY({
     x: getComponentTransform(
       component,
@@ -66,8 +68,8 @@ const GesturePaintComponent: React.FC<{
         const weight = component.params.lastWeight ?? PAINT_WEIGHT[0];
         const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
         const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
-        data.current.push([color, weight, penType, x, y]);
-        updatePaintStatus(`MOVE-TO-${x}-${y}`, index, data.current);
+        lastXY.current = { x, y };
+        startLinePaint(color, weight, penType, x, y);
         return;
       }
     })
@@ -91,19 +93,11 @@ const GesturePaintComponent: React.FC<{
       if (!isTranslateVisible.value) {
         const x = (event.absoluteX - rootX.value) / rootSize.scale.value;
         const y = (event.absoluteY - rootY.value) / rootSize.scale.value;
-        const list = data.current[data.current.length - 1];
-        const length = list.length;
-        if (hasIndex(list, length - 1) && hasIndex(list, length - 2)) {
-          const prevX = list[length - 2];
-          const prevY = list[length - 1];
-          const smoothX = kalmanX.current.filter(prevX as number);
-          const smoothY = kalmanY.current.filter(prevY as number);
-          data.current[data.current.length - 1][length - 2] = smoothX;
-          data.current[data.current.length - 1][length - 1] = smoothY;
-        }
-        data.current[data.current.length - 1].push(x);
-        data.current[data.current.length - 1].push(y);
-        updatePaintStatus(`MOVE-TO-${x}-${y}`, index, data.current);
+        const smoothX = kalmanX.current.filter(lastXY.current.x as number);
+        const smoothY = kalmanY.current.filter(lastXY.current.y as number);
+        updateLastXYLinePaint(smoothX, smoothY);
+        moveToLinePaint(x, y);
+        lastXY.current = { x, y };
         return;
       }
       updateComponentTransform(

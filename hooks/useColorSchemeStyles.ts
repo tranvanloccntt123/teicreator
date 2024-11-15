@@ -6,6 +6,7 @@ type ColorSchemeStyle = {
   box: ViewStyle;
   icon: {
     color?: string;
+    size: number;
   };
 };
 
@@ -19,8 +20,9 @@ const useColorSchemeStyle = (): ColorSchemeStyle => {
       backgroundColor: Colors[colorScheme ?? "light"].background,
     },
     icon: {
-        color: Colors[colorScheme ?? "light"].icon,
-    }
+      color: Colors[colorScheme ?? "light"].icon,
+      size: 24,
+    },
   };
 };
 

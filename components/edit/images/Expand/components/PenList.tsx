@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { PAINT_PEN_TYPE_LIST } from "@/constants/Workspace";
-import { Component, PaintType } from "@/type/store";
+import { EditComponent, PaintType } from "@/type/store";
 import { useColorScheme } from "react-native";
 import { HStack } from "@/components/ui/hstack";
 import { updatePaintParams } from "@/utils";
@@ -11,7 +11,7 @@ import PenIcon from "./PenIcon";
 import { Colors } from "@/constants/Colors";
 import ExpandItemContainer from "./ExpandItemContainer";
 
-const PenList: React.FC<{ component?: Component }> = ({ component }) => {
+const PenList: React.FC<{ component?: EditComponent }> = ({ component }) => {
   const colorScheme = useColorScheme();
   const [pen, setPen] = React.useState<PaintType>(PaintType.PEN);
   React.useEffect(() => {

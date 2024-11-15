@@ -9,6 +9,7 @@ import useCurrentWorkspace from "@/hooks/useWorkspace";
 import RoundRootComponent from "./components/RoundRootComponent";
 import { fitComponentSize, updateCurrentWorkspace } from "@/utils";
 import Painting from "./components/Painting";
+import FrameView from "./components/FrameView";
 const WorkspaceView: React.FC<object> = () => {
   const { width, height } = useWindowDimensions();
 
@@ -51,7 +52,14 @@ const WorkspaceView: React.FC<object> = () => {
         }}
       >
         <RoundRootComponent workspace={workspace} />
-        {(workspace?.components || [])?.map((component) => {
+        {(workspace.frames ?? []).map((frame) => (
+          <FrameView
+            key={frame.id}
+            frame={frame}
+            rootSize={workspace.viewResize}
+          />
+        ))}
+        {/* {(workspace?.components || [])?.map((component) => {
           switch (component.type) {
             case "PAINT":
               return (
@@ -70,7 +78,7 @@ const WorkspaceView: React.FC<object> = () => {
                 />
               );
           }
-        })}
+        })} */}
       </Canvas>
     </Box>
   );

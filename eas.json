@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 11.0.2"
+    "version": ">= 11.0.2",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -16,7 +17,8 @@
       "channel": "production",
       "android": {
         "resourceClass": "medium",
-        "buildType": "apk"
+        "buildType": "apk",
+        "credentialsSource": "local"
       }
     }
   },

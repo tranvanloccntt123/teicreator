@@ -21,10 +21,11 @@ import useCurrentWorkspace from "@/hooks/useWorkspace";
 import {
   clearCurrentComponent,
   findCurrentComponent,
+  paintComponentRevert,
   pushComponentToCurrentWorkspace,
 } from "@/utils";
 import { Center } from "@/components/ui/center";
-import { Component, PaintType } from "@/type/store";
+import { EditComponent, PaintType } from "@/type/store";
 import { Button, ButtonGroup } from "@/components/ui/button";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -133,7 +134,7 @@ const ExpandComponent = () => {
 
   const createPaint = () => {
     const componentId: string = uuid.v4() as string;
-    const newComponent: Component = {
+    const newComponent: EditComponent = {
       id: componentId,
       data: [],
       size: workspace.size,
@@ -170,6 +171,21 @@ const ExpandComponent = () => {
               className="flex-1 rounded-md p-2 shadow-md"
             >
               <ButtonGroup flexDirection="row" className="flex-row px-2">
+                {component?.type === "PAINT" && (
+                  <Button
+                    variant="outline"
+                    className="border-0"
+                    onPress={() => {
+                      paintComponentRevert();
+                    }}
+                  >
+                    <Ionicons
+                      name="return-up-back"
+                      size={24}
+                      {...colorSchemeStyle.icon}
+                    />
+                  </Button>
+                )}
                 {component?.type === "PAINT" && (
                   <Button
                     variant="outline"

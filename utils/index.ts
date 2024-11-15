@@ -20,6 +20,10 @@ export {
   updateCurrentWorkspace,
   updatePaintStatus,
   updatePaintParams,
+  paintComponentRevert,
+  startLinePaint,
+  moveToLinePaint,
+  updateLastXYLinePaint,
 } from "./workspace";
 
 export {

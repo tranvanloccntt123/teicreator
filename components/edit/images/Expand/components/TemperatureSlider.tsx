@@ -6,13 +6,13 @@ import {
   MIN_TEMPERATURE_UP,
   TEMPERATURE_UP_STEP,
 } from "@/constants/Workspace";
-import { Component, MatrixIndex } from "@/type/store";
+import { EditComponent, MatrixIndex } from "@/type/store";
 import { verticalScale } from "react-native-size-matters";
 import { Slider } from "@miblanchard/react-native-slider";
 import { getComponentTransform, updateComponentTransform } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 const TemperatureSlider: React.FC<{
-  component?: Component;
+  component?: EditComponent;
 }> = ({ component }) => {
   const [temperature, setTemperature] = React.useState<number>(0);
   React.useEffect(() => {

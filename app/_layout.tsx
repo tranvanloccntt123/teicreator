@@ -13,19 +13,16 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import {
   Gesture,
-  GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import { router } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 //Query Client
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Pressable, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import AppStyles from "@/assets/css";
 import queryClient from "@/services/queryClient";
-import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
-import Animated, {
+import {
   interpolate,
   useAnimatedStyle,
   useDerivedValue,
@@ -33,6 +30,7 @@ import Animated, {
 } from "react-native-reanimated";
 import usePositionXY from "@/hooks/usePosition";
 import { scale } from "react-native-size-matters";
+import * as Updates from "expo-updates";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -111,7 +109,23 @@ const AppNavigation = () => {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const debugLogged = React.useRef<boolean>(false);
+  const { currentlyRunning: _currentlyRunning, isUpdateAvailable, isUpdatePending } =
+    Updates.useUpdates();
+
+  //REMOTE UPDATE
+  useEffect(() => {
+    if (isUpdatePending) {
+      // Update has successfully downloaded; apply it now
+      Updates.reloadAsync();
+    }
+  }, [isUpdatePending]);
+
+  React.useEffect(() => {
+    if (isUpdateAvailable) {
+      Updates.fetchUpdateAsync();
+    }
+  }, [isUpdateAvailable]);
+
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });

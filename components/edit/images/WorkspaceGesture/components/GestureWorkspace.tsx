@@ -11,6 +11,7 @@ const GestureWorkspace = () => {
       clearCurrentComponent();
     })
     .runOnJS(true);
+
   const style = React.useMemo<StyleProp<ViewStyle>>(
     () => ({
       position: "absolute",
@@ -19,7 +20,6 @@ const GestureWorkspace = () => {
       bottom: 0,
       left: 0,
       zIndex: GESTURE_TAP_Z_INDEX - 1,
-      backgroundColor: "red",
     }),
     []
   );

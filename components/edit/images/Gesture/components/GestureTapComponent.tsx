@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize, MatrixIndex } from "@/type/store";
+import { EditComponent, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
@@ -16,7 +16,7 @@ import {
 import { useWindowDimensions } from "react-native";
 
 const GestureTapComponent: React.FC<{
-  component: Component;
+  component: EditComponent;
   index: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {

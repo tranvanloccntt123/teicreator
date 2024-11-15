@@ -4,7 +4,7 @@ import { Text } from "@/components/ui/text";
 import { EXPAND_FRAME_Z_INDEX } from "@/constants/Workspace";
 import useCurrentWorkspace from "@/hooks/useWorkspace";
 import { FlatList, TouchableOpacity } from "react-native";
-import { Component, WorkspaceSize } from "@/type/store";
+import { EditComponent, WorkspaceSize } from "@/type/store";
 import {
   Canvas,
   Image,
@@ -21,7 +21,7 @@ import { useDerivedValue } from "react-native-reanimated";
 const FRAME_SIZE = scale(70);
 
 const FrameItem: React.FC<{
-  component: Component;
+  component: EditComponent;
   workspaceSize: WorkspaceSize;
 }> = ({ component, workspaceSize }) => {
   const _FRAME_SIZE = FRAME_SIZE - scale(10);

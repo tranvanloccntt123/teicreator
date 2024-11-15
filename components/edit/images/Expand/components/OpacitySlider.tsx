@@ -2,14 +2,14 @@ import React from "react";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { MAX_OPACITY, MIN_OPACITY, OPACITY_STEP } from "@/constants/Workspace";
-import { Component, MatrixIndex } from "@/type/store";
+import { EditComponent, MatrixIndex } from "@/type/store";
 import { verticalScale } from "react-native-size-matters";
 import { Slider } from "@miblanchard/react-native-slider";
 import { getComponentTransform, updateComponentTransform } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 
 const OpacitySlider: React.FC<{
-  component?: Component;
+  component?: EditComponent;
 }> = ({ component }) => {
   const [opacity, setOpacity] = React.useState<number>(0);
   React.useEffect(() => {

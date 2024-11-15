@@ -7,13 +7,13 @@ import {
   PAINT_WEIGHT,
   PAINT_WEIGHT_STEP,
 } from "@/constants/Workspace";
-import { Component } from "@/type/store";
+import { EditComponent } from "@/type/store";
 import { verticalScale } from "react-native-size-matters";
 import { Slider } from "@miblanchard/react-native-slider";
 import { updatePaintParams } from "@/utils";
 import ExpandItemContainer from "./ExpandItemContainer";
 
-const PaintLineWeightSlider: React.FC<{ component?: Component }> = ({
+const PaintLineWeightSlider: React.FC<{ component?: EditComponent }> = ({
   component,
 }) => {
   const [paintWeight, setPaintWeight] = React.useState<number>(PAINT_WEIGHT[0]);

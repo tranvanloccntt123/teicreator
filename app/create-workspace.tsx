@@ -22,7 +22,9 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { HStack } from "@/components/ui/hstack";
 import { makeMutable } from "react-native-reanimated";
 import { scale, verticalScale } from "react-native-size-matters";
-import { Workspace } from "@/type/store";
+import { FrameComponent, Workspace } from "@/type/store";
+import uuid from "react-native-uuid";
+import { INIT_MATRIX } from "@/constants/Workspace";
 
 const CreateWorkspace = () => {
   const { width: widthDimensions, height: heightDimensions } =
@@ -72,6 +74,20 @@ const CreateWorkspace = () => {
           widthDimensions: widthDimensions - scale(15),
           heightDimensions: heightDimensions - verticalScale(50),
         });
+        const rootFrameId = uuid.v4() as string;
+        const initFrame: Array<FrameComponent> = [
+          {
+            id: rootFrameId,
+            name: "Root",
+            components: [],
+            size: {
+              width: Number(width),
+              height: Number(height),
+            },
+            matrix: INIT_MATRIX.map((v) => makeMutable(v)),
+          },
+        ];
+
         const initWorkspaceView: Workspace = {
           ...newWorkspace,
           viewResize: {
@@ -83,6 +99,8 @@ const CreateWorkspace = () => {
             translateX: makeMutable(0),
             translateY: makeMutable(0),
           },
+          frames: initFrame,
+          frameId: rootFrameId,
         };
         setCurrentWorkspace(initWorkspaceView);
         setDraftWorkspace(newWorkspace);

@@ -110,3 +110,5 @@ export const COLOR = [
     "#E2E2E2",
   ],
 ];
+
+export const WORKSPACE_SCALE_STEP = 0.3;

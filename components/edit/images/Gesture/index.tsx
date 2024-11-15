@@ -1,5 +1,5 @@
 import React from "react";
-import { Component, FitSize, MatrixIndex } from "@/type/store";
+import { EditComponent, FitSize, MatrixIndex } from "@/type/store";
 import Animated, {
   SharedValue,
   clamp,
@@ -31,7 +31,7 @@ import {
 } from "@/utils";
 
 const TrashComponent: React.FC<{
-  component: Component;
+  component: EditComponent;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, rootSize }) => {
   const size = useDerivedValue(() =>
@@ -63,7 +63,7 @@ const TrashComponent: React.FC<{
 };
 
 const GestureComponent: React.FC<{
-  component: Component;
+  component: EditComponent;
   index: number;
   rootSize: FitSize<SharedValue<number>>;
 }> = ({ component, index, rootSize }) => {

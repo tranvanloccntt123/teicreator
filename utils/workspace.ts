@@ -1,5 +1,5 @@
 import {
-  Component,
+  EditComponent,
   DraftWorkspace,
   FitSize,
   MatrixIndex,
@@ -10,11 +10,13 @@ import {
   Workspace,
   WorkspaceBase,
   WorkspaceSize,
+  FrameComponent,
 } from "@/type/store";
 import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
-import { SharedValue } from "react-native-reanimated";
+import { SharedValue, makeMutable } from "react-native-reanimated";
 import {
+  INIT_MATRIX,
   PAINT_BLEND_MODE,
   PAINT_COLOR_POSITION,
   PAINT_PEN_TYPE,
@@ -29,13 +31,13 @@ import queryClient from "@/services/queryClient";
 import { QueryKeys } from "@/constants/QueryKeys";
 
 export const getComponentTransform = (
-  component: Component,
+  component: EditComponent | FrameComponent,
   transform: MatrixIndex,
   scale?: number
 ) => component.matrix[transform].value * (scale ?? 1);
 
 export const updateComponentTransform = (
-  component: Component,
+  component: EditComponent,
   transform: MatrixIndex,
   value: number,
   scale?: number
@@ -43,7 +45,7 @@ export const updateComponentTransform = (
   component.matrix[transform].value = value / (scale ?? 1);
 };
 
-export const componentSize = (component: Component) => {
+export const componentSize = (component: EditComponent) => {
   return {
     width:
       component.size.width *
@@ -54,7 +56,7 @@ export const componentSize = (component: Component) => {
   };
 };
 
-export const resizePosition = (component: Component): Vector => {
+export const resizePosition = (component: EditComponent): Vector => {
   return {
     x: componentSize(component).width / 2 + BTN_OPTION_SIZE / 2,
     y: -componentSize(component).height / 2 - BTN_OPTION_SIZE / 2,
@@ -62,7 +64,7 @@ export const resizePosition = (component: Component): Vector => {
 };
 
 export const resizeComponentFitWorkspace = (
-  component: Component,
+  component: EditComponent | FrameComponent,
   workspaceScale: SharedValue<number>
 ) => {
   return {
@@ -81,7 +83,7 @@ export const createNewWorspace = ({
 });
 
 export const findCurrentComponent = (
-  components: Component[],
+  components: EditComponent[],
   componentId: string
 ) => {
   return components.find((component) => component.id === componentId);
@@ -111,7 +113,7 @@ export const temperatureUp = (matrixFilter: Array<number>, percent: number) => {
 };
 
 export const paintLinePath = (
-  component: Component,
+  component: EditComponent,
   canvas: SkCanvas,
   options?: { scale: number; opacity: number }
 ) => {
@@ -160,19 +162,51 @@ export const setCurrentWorkspace = (workspace: Workspace) => {
   });
 };
 
-export const pushComponentToCurrentWorkspace = (component: Component) => {
+export const pushComponentToCurrentWorkspace = (component: EditComponent) => {
   queryClient.setQueryData(
     [QueryKeys.CURRENT_WORKSPACE],
-    (oldData: Workspace): Workspace => ({
-      ...oldData,
-      components: [...(oldData?.components || []), component],
-      componentEditingId: component.id,
-    })
+    (oldData: Workspace): Workspace => {
+      if (oldData.frameId) {
+        const frames = (oldData.frames ?? []).map((frame) => {
+          if (frame.id === oldData.frameId) {
+            return {
+              ...frame,
+              components: (frame.components ?? []).concat(component),
+            };
+          }
+          return frame;
+        });
+        return {
+          ...oldData,
+          componentEditingId: component.id,
+          frames,
+        };
+      } else {
+        const rootFrameId = uuid.v4() as string;
+        const initFrame: Array<FrameComponent> = [
+          {
+            id: rootFrameId,
+            name: "Root",
+            components: [component],
+            size: {
+              width: oldData.size.width,
+              height: oldData.size.height,
+            },
+            matrix: INIT_MATRIX.map((v) => makeMutable(v)),
+          },
+        ];
+        return {
+          ...oldData,
+          frames: (oldData.frames ?? []).concat(initFrame),
+          componentEditingId: component.id,
+        };
+      }
+    }
   );
 };
 
 export const pushComponentToDraftWorkspace = (
-  component: Component<number[]>
+  component: EditComponent<number[]>
 ) => {
   queryClient.setQueryData(
     [QueryKeys.DRAFT_WORKSPACE],
@@ -218,6 +252,17 @@ export const clearCurrentComponent = () => {
       return {
         ...oldData,
         componentEditingId: undefined,
+        components: (oldData.components ?? []).filter((component) => {
+          console.log(component.type);
+          if (component.type === "PAINT") {
+            console.log(
+              (component.data as PaintMatrix).length > 0,
+              component.id
+            );
+            return (component.data as PaintMatrix).length > 0;
+          }
+          return true;
+        }),
       };
     }
   );
@@ -252,6 +297,82 @@ export const updateCurrentWorkspace = (params: { viewResize?: FitSize }) => {
       return {
         ...oldData,
         viewResize: workspaceViewSize,
+      };
+    }
+  );
+};
+
+export const startLinePaint = (
+  color: string,
+  weight: number,
+  penType: PaintType,
+  x: number,
+  y: number
+) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      const componentIndex: number = components.findIndex(
+        (component) => component.id === oldData.componentEditingId
+      );
+      (components[componentIndex].data as PaintMatrix)?.push([
+        color,
+        weight,
+        penType,
+        x,
+        y,
+      ]);
+      return {
+        ...oldData,
+        components,
+        paintStatus: `MOVE-TO-${x}-${y}`,
+      };
+    }
+  );
+};
+
+export const updateLastXYLinePaint = (newX: number, newY: number) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      const componentIndex: number = components.findIndex(
+        (component) => component.id === oldData.componentEditingId
+      );
+      const length = (components[componentIndex].data as PaintMatrix).length;
+      const lineLength = (components[componentIndex].data as PaintMatrix)[
+        length - 1
+      ].length;
+      (components[componentIndex].data as PaintMatrix)[length - 1][
+        lineLength - 2
+      ] = newX;
+      (components[componentIndex].data as PaintMatrix)[length - 1][
+        lineLength - 1
+      ] = newY;
+      return {
+        ...oldData,
+        components,
+        paintStatus: `UPDATE-LINE-${newX}-${newY}`,
+      };
+    }
+  );
+};
+
+export const moveToLinePaint = (x: number, y: number) => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      const componentIndex: number = components.findIndex(
+        (component) => component.id === oldData.componentEditingId
+      );
+      const length = (components[componentIndex].data as PaintMatrix).length;
+      (components[componentIndex].data as PaintMatrix)[length - 1].push(x, y);
+      return {
+        ...oldData,
+        components,
+        paintStatus: `LINE-TO-${x}-${y}`,
       };
     }
   );
@@ -292,6 +413,31 @@ export const updatePaintParams = (params: PaintParams) => {
         ...oldData,
         components,
         paintStatus: "CHANGE-WEIGHT",
+      };
+    }
+  );
+};
+
+export const workspaceScaleUp = () => {};
+
+export const paintComponentRevert = () => {
+  queryClient.setQueryData(
+    [QueryKeys.CURRENT_WORKSPACE],
+    (oldData: Workspace): Workspace => {
+      const components = (oldData?.components || []).concat();
+      const componentIndex: number = components.findIndex(
+        (component) => component.id === oldData.componentEditingId
+      );
+      const length = (components[componentIndex].data as PaintMatrix).length;
+      if (length === 1) {
+        components[componentIndex].data = [];
+      } else {
+        (components[componentIndex].data as PaintMatrix)?.pop();
+      }
+      return {
+        ...oldData,
+        components,
+        paintStatus: "REVERT-" + length,
       };
     }
   );
