@@ -1,13 +1,5 @@
 import { QueryKeys } from "@/constants/QueryKeys";
-import queryClient from "@/services/queryClient";
-import {
-  EditComponent,
-  DraftWorkspace,
-  FitSize,
-  PaintMatrix,
-  PaintParams,
-  Workspace,
-} from "@/type/store";
+import { Workspace } from "@/type/store";
 import { last } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 

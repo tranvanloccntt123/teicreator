@@ -37,7 +37,7 @@ const EditImage = () => {
   React.useEffect(() => {
     uploadImage();
   }, []);
-  return <Box className="box-1 bg-white"></Box>;
+  return <Box className="flex-1 bg-white"></Box>;
 };
 
 export default EditImage;

@@ -1,14 +1,10 @@
-import React from "react";
-import type { VariantProps } from "@gluestack-ui/nativewind-utils";
-import { TTextProps, textStyle } from "./styles";
-import { useColorScheme } from "react-native";
-import { Colors } from "@/constants/Colors";
+import React from 'react';
+import type { VariantProps } from '@gluestack-ui/nativewind-utils';
+import { textStyle } from './styles';
 
-type ITextProps = React.ComponentProps<"span"> &
-  VariantProps<typeof textStyle> &
-  TTextProps;
+type ITextProps = React.ComponentProps<'span'> & VariantProps<typeof textStyle>;
 
-const Text = React.forwardRef<React.ElementRef<"span">, ITextProps>(
+const Text = React.forwardRef<React.ElementRef<'span'>, ITextProps>(
   (
     {
       className,
@@ -16,23 +12,14 @@ const Text = React.forwardRef<React.ElementRef<"span">, ITextProps>(
       bold,
       underline,
       strikeThrough,
-      size = "md",
+      size = 'md',
       sub,
       italic,
       highlight,
-      schemeDisabled,
       ...props
     }: { className?: string } & ITextProps,
     ref
   ) => {
-    const colorScheme = useColorScheme();
-    const _styles = React.useMemo(
-      () => ({
-        color: !schemeDisabled && Colors[colorScheme ?? "light"].text,
-        ...props.style,
-      }),
-      [props.style]
-    );
     return (
       <span
         className={textStyle({
@@ -47,13 +34,12 @@ const Text = React.forwardRef<React.ElementRef<"span">, ITextProps>(
           class: className,
         })}
         {...props}
-        style={_styles}
         ref={ref}
       />
     );
   }
 );
 
-Text.displayName = "Text";
+Text.displayName = 'Text';
 
 export { Text };

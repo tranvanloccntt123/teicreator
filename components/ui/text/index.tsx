@@ -1,13 +1,11 @@
-import React from "react";
+import React from 'react';
 
-import type { VariantProps } from "@gluestack-ui/nativewind-utils";
-import { Text as RNText, useColorScheme } from "react-native";
-import { TTextProps, textStyle } from "./styles";
-import { Colors } from "@/constants/Colors";
+import type { VariantProps } from '@gluestack-ui/nativewind-utils';
+import { Text as RNText } from 'react-native';
+import { textStyle } from './styles';
 
 type ITextProps = React.ComponentProps<typeof RNText> &
-  VariantProps<typeof textStyle> &
-  TTextProps;
+  VariantProps<typeof textStyle>;
 
 const Text = React.forwardRef<React.ElementRef<typeof RNText>, ITextProps>(
   (
@@ -17,23 +15,14 @@ const Text = React.forwardRef<React.ElementRef<typeof RNText>, ITextProps>(
       bold,
       underline,
       strikeThrough,
-      size = "md",
+      size = 'md',
       sub,
       italic,
       highlight,
-      schemeDisabled,
       ...props
     },
     ref
   ) => {
-    const colorScheme = useColorScheme();
-    const _styles = React.useMemo(
-      () => [
-        { color: !schemeDisabled && Colors[colorScheme ?? "light"].text },
-        props.style,
-      ],
-      [props.style]
-    );
     return (
       <RNText
         className={textStyle({
@@ -48,13 +37,12 @@ const Text = React.forwardRef<React.ElementRef<typeof RNText>, ITextProps>(
           class: className,
         })}
         {...props}
-        style={_styles}
         ref={ref}
       />
     );
   }
 );
 
-Text.displayName = "Text";
+Text.displayName = 'Text';
 
 export { Text };

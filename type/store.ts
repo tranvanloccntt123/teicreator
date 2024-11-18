@@ -39,7 +39,7 @@ export type FrameComponent<ListParams = Array<SharedValue<number>>> = {
   size: WorkspaceSize;
   matrix: ListParams;
   params?: PaintParams;
-}
+};
 
 export enum MatrixIndex {
   TRANSLATE_X,
@@ -101,3 +101,14 @@ export enum PaintType {
   HIGH_LIGHT_PEN,
   TICK_PEN,
 }
+
+export type ImageCompoment<ListParams = Array<SharedValue<number>>> = {
+  data: SkImage;
+  matrix: ListParams;
+};
+
+export type ImageWorkspace = {
+  id: string;
+  components: Array<ImageCompoment>;
+  viewResize: FitSize<SharedValue<number>>;
+};
