@@ -1,15 +1,52 @@
 import React from "react";
-import { Image, ImageProps, Pressable } from "react-native";
+import {
+  Image,
+  ImageProps,
+  Pressable,
+  useWindowDimensions,
+} from "react-native";
 import { Box } from "../ui/box";
 import { StyleSheet } from "react-native";
+import ViewResponsive, {
+  ViewResponsiveStyle,
+} from "../ui/view-responsive/ViewResponsive";
+import { scale } from "react-native-size-matters";
 
-const HotImageItem: React.FC<{onPress?: () => void} & ImageProps> = ({onPress, ...props }) => {
+const HotImageItem: React.FC<{ onPress?: () => void } & ImageProps> = ({
+  onPress,
+  ...props
+}) => {
+  const { width } = useWindowDimensions();
+  const containerResponsiveStyle: ViewResponsiveStyle = React.useMemo(
+    () => ({
+      xs: {
+        width: width / 2,
+        height: width / 2,
+      },
+      sm: {
+        width: width / 3,
+        height: width / 3,
+      },
+      md: {
+        width: scale(50),
+        height: scale(50),
+      },
+      lg: {
+        width: scale(40),
+        height: scale(40),
+      },
+    }),
+    [width]
+  );
   return (
-    <Box className="overflow-hidden xs:w-1/2 xs:h-1/2 sm:w-1/3 sm:h-1/2 md:w-50 md:h-50 rounded-md lg:w-40 lg:h-40 bg-secondary-50 mx-2 my-1">
+    <ViewResponsive
+      responsive={containerResponsiveStyle}
+      className="overflow-hidden rounded-md bg-secondary-50 px-2 my-1"
+    >
       <Pressable onPress={onPress} style={styles.btn}>
         <Image style={styles.image} {...props} />
       </Pressable>
-    </Box>
+    </ViewResponsive>
   );
 };
 
