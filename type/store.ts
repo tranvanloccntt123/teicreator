@@ -15,7 +15,7 @@ export type ImageUploading = {
 
 export type ComponentType = "IMAGE" | "PAINT";
 
-export type PaintMatrix = Array<Array<number | string>>;
+export type PaintMatrix = (number | string)[][];
 
 export type PaintParams = {
   lastWeight?: number;
@@ -23,7 +23,7 @@ export type PaintParams = {
   lastPainType?: PaintType;
 };
 
-export type EditComponent<ListParams = Array<SharedValue<number>>> = {
+export type EditComponent<ListParams = SharedValue<number>[]> = {
   id: string;
   data: SkImage | PaintMatrix;
   size: WorkspaceSize;
@@ -32,7 +32,7 @@ export type EditComponent<ListParams = Array<SharedValue<number>>> = {
   params?: PaintParams;
 };
 
-export type FrameComponent<ListParams = Array<SharedValue<number>>> = {
+export type FrameComponent<ListParams = SharedValue<number>[]> = {
   id: string;
   name: string;
   components: EditComponent[];
@@ -66,8 +66,8 @@ export type FitSize<ValueType = number> = WorkspaceSize<ValueType> & {
 };
 
 export type Workspace = WorkspaceBase & {
-  components?: Array<EditComponent>;
-  frames?: Array<FrameComponent>;
+  components?: EditComponent[];
+  frames?: FrameComponent[];
   componentEditingId?: string;
   frameId?: string;
   viewResize: FitSize<SharedValue<number>>;
@@ -79,7 +79,7 @@ export type Workspace = WorkspaceBase & {
 };
 
 export type DraftWorkspace = WorkspaceBase & {
-  components?: Array<EditComponent<number[]>>;
+  components?: EditComponent<number[]>[];
 };
 
 export type Vector = {
@@ -92,7 +92,7 @@ export type LogType = "Error" | "Warning" | "Info";
 export type DevLog = {
   label: string;
   type: LogType;
-  data: Object | string | number;
+  data: object | string | number;
   id: string;
 };
 
@@ -102,13 +102,14 @@ export enum PaintType {
   TICK_PEN,
 }
 
-export type ImageCompoment<ListParams = Array<SharedValue<number>>> = {
+export type ImageComponent<ListParams = SharedValue<number>[]> = {
   data: SkImage;
-  matrix: ListParams;
+  matrix?: ListParams;
 };
 
 export type ImageWorkspace = {
   id: string;
-  components: Array<ImageCompoment>;
-  viewResize: FitSize<SharedValue<number>>;
+  background: ImageComponent;
+  components: ImageComponent[];
+  // viewResize: FitSize<SharedValue<number>>;
 };

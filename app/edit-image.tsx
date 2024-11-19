@@ -5,42 +5,28 @@ import { ButtonText, Button } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import useImageWorkspace from "@/hooks/useImageWorkspace";
+import { useLoading } from "@/components/loading/LoadingProvider";
+import { initMatrixBackgroundImageWorkspace } from "@/utils/editImage";
 
 const EditImage = () => {
-  // const { width, height } = useWindowDimensions();
-  // const [image, setImage] = React.useState<string>();
-  // const [imageSize, setImageSize] = React.useState<{
-  //   width: number;
-  //   height: number;
-  // }>();
-  // const uploadImage = async () => {
-  //   const imageUploaded = await pickImage();
-  //   if (first(imageUploaded?.assets || [])?.base64) {
-  //     const imageSize = fitComponentSize({
-  //       imageHeight: first(imageUploaded?.assets || [])?.height || 1,
-  //       imageWidth: first(imageUploaded?.assets || [])?.width || 1,
-  //       widthDimensions: width || 1,
-  //       heightDimensions: height || 1,
-  //     });
-  //     setImageSize(imageSize);
-  //     // const imageResized = await resizeImage({
-  //     //   base64: `data:image/jpeg;base64,${
-  //     //     first(imageUploaded?.assets || [])?.base64
-  //     //   }`,
-  //     //   width: imageSize.width,
-  //     //   height: imageSize.height,
-  //     // });
-  //     // setImage(
-  //     //   `data:image/jpeg;base64,${first(imageUploaded?.assets || [])?.base64}`
-  //     // );
-  //     setImage(first(imageUploaded?.assets || [])?.base64);
-  //   }
-  // };
+  const loading = useLoading();
 
-  // React.useEffect(() => {
-  //   uploadImage();
-  // }, []);
+  const insets = useSafeAreaInsets();
+
+  const workspace = useImageWorkspace();
+
+  React.useEffect(() => {
+    //First load
+    if (!workspace?.data?.background) {
+      initMatrixBackgroundImageWorkspace();
+      loading.hide();
+    }
+  }, [loading, workspace]);
 
   // Action Handlers
   const handleAddText = () => {
@@ -81,7 +67,10 @@ const EditImage = () => {
           <Text className="text-xl font-bold text-gray-900">Image</Text>
         </Box>
         {/* Actions: Add Text, Effect, Paint at top-right */}
-        <Box className="absolute top-4 right-4 flex-row space-x-4 gap-2 px-4 py-2">
+        <Box
+          className="absolute top-4 right-4 flex-row space-x-4 gap-2 px-4 py-2"
+          style={{ marginTop: insets.top }}
+        >
           <Button variant="link" onPress={handleAddText}>
             <MaterialIcons name="text-fields" size={24} color="black" />
           </Button>
@@ -93,7 +82,10 @@ const EditImage = () => {
           </Button>
         </Box>
         {/* Back Button at top-left */}
-        <Box className="absolute top-4 left-4 px-4 py-2">
+        <Box
+          className="absolute top-4 left-4 px-4 py-2"
+          style={{ marginTop: insets.top }}
+        >
           <Button variant="link" onPress={handleBack}>
             <Ionicons name="arrow-back" size={24} color="black" />
           </Button>

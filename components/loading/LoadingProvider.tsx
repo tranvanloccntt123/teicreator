@@ -1,6 +1,7 @@
 import React from "react";
 import { Box } from "../ui/box";
 import Animated, {
+  cancelAnimation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -31,18 +32,20 @@ const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({
   const { width, height } = useWindowDimensions();
   const loading = useSharedValue(0);
   const showLoading = () => {
+    cancelAnimation(loading);
     loading.value = withTiming(1, { duration: 200 });
   };
   const hideLoading = () => {
+    cancelAnimation(loading);
     loading.value = withTiming(0, { duration: 200 });
   };
   const containerStyle = useAnimatedStyle(() => ({
     opacity: loading.value,
-    width: interpolate(loading.value, [0, 0.1, 1], [0, width, width]),
-    height: interpolate(loading.value, [0, 0.1, 1], [0, height, height]),
+    width: interpolate(loading.value, [0, 0.01, 1], [0, width, width]),
+    height: interpolate(loading.value, [0, 0.01, 1], [0, height, height]),
     transform: [
       {
-        scale: interpolate(loading.value, [0, 0.2, 1], [0, 0, 1]),
+        scale: interpolate(loading.value, [0, 0.01, 1], [0, 1, 1]),
       },
     ],
   }));
