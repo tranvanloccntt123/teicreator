@@ -3,7 +3,6 @@ import {
   Group,
   Image,
   Transforms3d,
-  Skia,
   Blur,
   ColorMatrix,
   SkImage,
@@ -69,13 +68,6 @@ const ImagePreviewFromBase64: React.FC<{
   const blur = useDerivedValue(() =>
     getComponentTransform(component, MatrixIndex.BLUR)
   );
-  // R G B A
-  // const colorMatrix = [
-  //   1,0,0,0,0,
-  //   0,1,0,0,0,
-  //   0,0,1,0,0,
-  //   0,0,0,1,0
-  // ];
 
   const colorMatrix = useDerivedValue(() =>
     temperatureUp(

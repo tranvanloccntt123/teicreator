@@ -11,8 +11,6 @@ import { useLoading } from "@/components/loading/LoadingProvider";
 import { Skia } from "@shopify/react-native-skia";
 import { setImageWorkspace } from "@/utils/editImage";
 import uuid from "react-native-uuid";
-import { makeMutable } from "react-native-reanimated";
-import { INIT_MATRIX } from "@/constants/Workspace";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 const IMAGE_EXAMPLE =
@@ -32,14 +30,11 @@ export default function HomeScreen() {
   const submitImageWorkspace = async (uri: string) => {
     loading.show();
     try {
-      const data = await Skia.Data.fromURI(uri);
-      const _image = Skia.Image.MakeImageFromEncoded(data);
       setImageWorkspace({
         id: uuid.v4() as string,
-        background: {
-          data: _image,
-        },
+        background: uri,
         components: [],
+        isInit: true,
       });
       loading.hide();
       router.navigate("/edit-image");
@@ -51,7 +46,7 @@ export default function HomeScreen() {
 
   return (
     <Box className="flex-1 bg-white">
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         <VStack className="flex-1 p-6 space-y-4">
           <Text className="text-2xl font-bold text-center text-black">
             Welcome to Image Editor

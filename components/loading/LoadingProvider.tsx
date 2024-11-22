@@ -105,7 +105,7 @@ const styles = ScaledSheet.create({
     height: "200@s",
   },
   loading: {
-    width: "100@s",
-    height: "100@s",
+    width: "150@s",
+    height: "150@s",
   },
 });

@@ -105,11 +105,13 @@ export enum PaintType {
 export type ImageComponent<ListParams = SharedValue<number>[]> = {
   data: SkImage;
   matrix?: ListParams;
+  size: WorkspaceSize;
 };
 
 export type ImageWorkspace = {
   id: string;
-  background: ImageComponent;
+  background: string;
   components: ImageComponent[];
+  isInit: boolean;
   // viewResize: FitSize<SharedValue<number>>;
 };

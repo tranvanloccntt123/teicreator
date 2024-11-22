@@ -1,9 +1,8 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Box } from "@/components/ui/box";
 import { Ionicons, MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { ButtonText, Button } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
-import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
 import {
   SafeAreaView,
@@ -12,21 +11,69 @@ import {
 import useImageWorkspace from "@/hooks/useImageWorkspace";
 import { useLoading } from "@/components/loading/LoadingProvider";
 import { initMatrixBackgroundImageWorkspace } from "@/utils/editImage";
+import { Center } from "@/components/ui/center";
+import LottieAnimation from "@/assets/animations";
+import LottieView from "lottie-react-native";
+import { ScaledSheet } from "react-native-size-matters";
+import LazyCanvasView from "@/components/edit/images/LazyCanvasView";
+import { StatusBar, useWindowDimensions } from "react-native";
+import { useSharedValue } from "react-native-reanimated";
+import { WorkspaceSize } from "@/type/store";
 
 const EditImage = () => {
+  const { width, height } = useWindowDimensions();
+
+  const [editSize, setEditSize] = React.useState<WorkspaceSize>({
+    width: 0,
+    height: 0,
+  });
+
   const loading = useLoading();
 
   const insets = useSafeAreaInsets();
 
   const workspace = useImageWorkspace();
 
+  const rootSizeWidth = useSharedValue(width);
+
+  const rootSizeHeight = useSharedValue(height);
+
+  const rootSizeScale = useSharedValue(1);
+
   React.useEffect(() => {
     //First load
-    if (!workspace?.data?.background) {
-      initMatrixBackgroundImageWorkspace();
-      loading.hide();
+    if (
+      workspace?.data?.isInit &&
+      workspace?.data?.background &&
+      editSize.width &&
+      editSize.height
+    ) {
+      console.log("EDIT SIZE", editSize);
+      const init = async () => {
+        const fit = await initMatrixBackgroundImageWorkspace(
+          workspace?.data?.background,
+          editSize
+        );
+        rootSizeHeight.value = fit.height;
+        rootSizeWidth.value = fit.width;
+        rootSizeScale.value = fit.scale;
+        loading.hide();
+      };
+      init();
     }
-  }, [loading, workspace]);
+  }, [
+    editSize.height,
+    editSize.width,
+    height,
+    loading,
+    rootSizeHeight,
+    rootSizeScale,
+    rootSizeWidth,
+    width,
+    workspace?.data?.isInit,
+    workspace?.data?.background,
+    editSize,
+  ]);
 
   // Action Handlers
   const handleAddText = () => {
@@ -61,10 +108,43 @@ const EditImage = () => {
 
   return (
     <Box className="flex-1 bg-black relative">
+      <StatusBar barStyle="light-content" />
       <SafeAreaView style={{ flex: 1 }}>
         {/* Placeholder View */}
-        <Box className="flex-1 bg-white my-4 justify-center items-center rounded-md shadow-md">
-          <Text className="text-xl font-bold text-gray-900">Image</Text>
+        <Box
+          onLayout={(e) => {
+            setEditSize({
+              width: e.nativeEvent.layout.width,
+              height: e.nativeEvent.layout.height,
+            });
+          }}
+          className="flex-1 bg-white my-4 rounded-md shadow-md"
+        >
+          <Suspense
+            fallback={
+              <Center className="flex-1">
+                <LottieView
+                  autoPlay
+                  style={styles.loading}
+                  source={LottieAnimation.LOADING}
+                  loop
+                  colorFilters={[
+                    { keypath: "Oval 3", color: "#FF8A80" },
+                    { keypath: "Oval", color: "#FFEBEE" },
+                  ]}
+                />
+              </Center>
+            }
+          >
+            <LazyCanvasView
+              rootSize={{
+                width: rootSizeWidth,
+                height: rootSizeHeight,
+                scale: rootSizeScale,
+              }}
+              components={workspace?.data?.components ?? []}
+            />
+          </Suspense>
         </Box>
         {/* Actions: Add Text, Effect, Paint at top-right */}
         <Box
@@ -117,3 +197,10 @@ const EditImage = () => {
 };
 
 export default EditImage;
+
+const styles = ScaledSheet.create({
+  loading: {
+    width: "150@s",
+    height: "150@s",
+  },
+});

@@ -11,6 +11,7 @@ import {
   WorkspaceBase,
   WorkspaceSize,
   FrameComponent,
+  ImageComponent,
 } from "@/type/store";
 import uuid from "react-native-uuid";
 import { BTN_OPTION_SIZE } from "@/constants/EditImage";
@@ -31,10 +32,13 @@ import queryClient from "@/services/queryClient";
 import { QueryKeys } from "@/constants/QueryKeys";
 
 export const getComponentTransform = (
-  component: EditComponent | FrameComponent,
+  component: EditComponent | FrameComponent | ImageComponent,
   transform: MatrixIndex,
   scale?: number
-) => component.matrix[transform].value * (scale ?? 1);
+) => {
+  "worklet";
+  return component.matrix[transform].value * (scale ?? 1);
+};
 
 export const updateComponentTransform = (
   component: EditComponent,
@@ -64,9 +68,10 @@ export const resizePosition = (component: EditComponent): Vector => {
 };
 
 export const resizeComponentFitWorkspace = (
-  component: EditComponent | FrameComponent,
+  component: EditComponent | FrameComponent | ImageComponent,
   workspaceScale: SharedValue<number>
 ) => {
+  "worklet";
   return {
     width: component.size.width * workspaceScale.value,
     height: component.size.height * workspaceScale.value,
@@ -99,12 +104,16 @@ export const rootTranslate = ({
   height: number;
   viewWidth: number;
   viewHeight: number;
-}) => ({
-  x: (width - viewWidth) / 2,
-  y: (height - viewHeight) / 2,
-});
+}) => {
+  "worklet";
+  return {
+    x: (width - viewWidth) / 2,
+    y: (height - viewHeight) / 2,
+  };
+};
 
-export const temperatureUp = (matrixFilter: Array<number>, percent: number) => {
+export const temperatureUp = (matrixFilter: number[], percent: number) => {
+  "worklet";
   let _matrixFilter = matrixFilter.concat();
   TEMPERATURE_UP.forEach((color, index) => {
     _matrixFilter[index] += color * percent;
@@ -253,12 +262,7 @@ export const clearCurrentComponent = () => {
         ...oldData,
         componentEditingId: undefined,
         components: (oldData.components ?? []).filter((component) => {
-          console.log(component.type);
           if (component.type === "PAINT") {
-            console.log(
-              (component.data as PaintMatrix).length > 0,
-              component.id
-            );
             return (component.data as PaintMatrix).length > 0;
           }
           return true;
